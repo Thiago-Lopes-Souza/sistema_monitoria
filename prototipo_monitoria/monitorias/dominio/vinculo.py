@@ -1,6 +1,7 @@
 from monitor import Monitor
 from disciplina import Disciplina
-from atendimento import Atendimento
+
+# Verificar imports, ainda nao tenho atendimento.py
 
 class Vinculo:
 
