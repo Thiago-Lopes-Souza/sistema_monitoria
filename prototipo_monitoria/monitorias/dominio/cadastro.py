@@ -2,7 +2,7 @@ from monitorias.dominio.disciplina import Disciplina
 from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
 from monitorias.dominio.atendimento import Atendimento
-from monitorias.dominio.consulta import ResultadoConsulta
+from monitorias.dominio.consulta import ItemConsulta, ResultadoConsulta, SituacaoConsulta
 from monitorias.dominio.horario import validar_codigo
 from monitorias.dominio.excecoes import (ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente)
 
@@ -97,7 +97,59 @@ class CadastroMonitorias:
         return disciplina
     
     def consultar_monitorias(self, codigo: str, modalidade: str | None = None) -> ResultadoConsulta:
-        raise NotImplementedError
+        """F2: consulta monitores e horários de uma disciplina (só leitura).
+          Recebe o código (AAA999, maiúsculas ou minúsculas) e a modalidade
+          opcional ("presencial", "online" ou vazio para todas).
+          Devolve um ResultadoConsulta com uma das quatro situações.
+          Lança DadosInvalidos (código mal formatado ou modalidade desconhecida)
+          e DisciplinaForaDoEscopo (código fora do catálogo).
+          Não altera nenhum dado, nem quando rejeita."""
+        if not isinstance(codigo, str):
+            raise DadosInvalidos("O código da disciplina deve ser um texto.")
+        filtro = self._normalizar_modalidade(modalidade)
+        disciplina = self._buscar_disciplina(codigo.strip())
+
+        vinculos = [v for v in self._vinculos.values()
+                    if v.disciplina.codigo == disciplina.codigo]
+        if not vinculos:
+            return ResultadoConsulta(
+                disciplina, SituacaoConsulta.NENHUMA_MONITORIA_CADASTRADA, (), filtro)
+
+        if all(len(v.atendimentos) == 0 for v in vinculos):
+            sem_horario = tuple(ItemConsulta(v.monitor, ()) for v in vinculos)
+            return ResultadoConsulta(
+                disciplina, SituacaoConsulta.MONITOR_SEM_HORARIOS, sem_horario, filtro)
+
+        itens = []
+        for v in vinculos:
+            horarios = tuple(a for a in v.atendimentos
+                             if filtro is None or a.modalidade() == filtro)
+            if horarios:
+                itens.append(ItemConsulta(v.monitor, horarios))
+
+        if not itens:
+            return ResultadoConsulta(
+                disciplina, SituacaoConsulta.SEM_HORARIOS_NA_MODALIDADE, (), filtro)
+        return ResultadoConsulta(
+            disciplina, SituacaoConsulta.COM_HORARIOS, tuple(itens), filtro)
 
     def listar_disciplinas(self) -> tuple[Disciplina, ...]:
-        raise NotImplementedError
+        """Lista as disciplinas do catálogo, ordenadas pelo código."""
+        return tuple(sorted(self._disciplinas.values(), key=lambda d: d.codigo))
+
+    @staticmethod
+    def _normalizar_modalidade(modalidade: str | None) -> str | None:
+        """Devolve None (todas) ou "presencial"/"online" em minúsculas.
+          Lança DadosInvalidos para qualquer outro valor."""
+        if modalidade is None:
+            return None
+        if not isinstance(modalidade, str):
+            raise DadosInvalidos("A modalidade deve ser um texto.")
+        texto = modalidade.strip().lower()
+        if texto == "":
+            return None
+        if texto not in ("presencial", "online"):
+            raise DadosInvalidos(
+                "Modalidade desconhecida: use 'presencial', 'online' "
+                "ou deixe em branco para ver todas.")
+        return texto
