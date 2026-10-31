@@ -1,44 +1,41 @@
-from vinculo import Vinculo
-from atendimento import Atendimento
+from monitorias.dominio.excecoes import DadosInvalidos
 
 class Monitor:
 
-  def __init__(self, matricula: str, nome: str, email: str) -> None:
-    matricula = matricula.strip()
-    if not matricula:
-      raise ValueError("Matrícula Inválida!")
-    self._matricula = matricula
+    """Monitor da UFMG..
+    Guarda matrícula, nome e e-mail institucional.
+    Matrícula e nome 'read only', o e-mail com setter e validação"""
 
-    nome = nome.strip().capitalize()
-    if not nome:
-      raise ValueError("Nome Inválido!")
-    self._nome = nome
+    def __init__(self, matricula: str, nome: str, email: str) -> None:
+        """Cria um monitor.
+          Lança DadosInvalidos se matrícula ou nome vazios ou e-mail inválido."""
+        matricula = matricula.strip()
+        if not matricula:
+            raise DadosInvalidos("A matrícula do monitor é obrigatória!")
+        self._matricula = matricula
 
-    email = email.strip().lower()
-    self.email = email
+        nome = nome.strip()
+        if not nome:
+            raise DadosInvalidos("O nome do monitor é obrigatório!")
+        self._nome = nome
 
-  @property
-  def matricula(self) -> str:
-    return self._matricula
-  @property
-  def nome(self) -> str:
-    return self._nome
-  @property
-  def email(self) -> str:
-    return self._email
-  @property
-  def vinculos(self) -> str:
-    return self._vinculos
+        self.email = email
 
-  @email.setter
-  def email(self, novo_email: str) -> str:
-    if not self.email or "@ufmg.br" not in self.email:
-      raise ValueError("Nome Inválido!")
-    self._email = novo_email
+    @property
+    def matricula(self) -> str:
+        return self._matricula
+    
+    @property
+    def nome(self) -> str:
+        return self._nome
+    
+    @property
+    def email(self) -> str:
+        return self._email
 
-  # Metodos
-  def buscar_vinculo(codigo: str) -> Vinculo | None:
-    pass
-  
-  def encontrar_conflito(novo: Atendimento) -> Vinculo | Atendimento | None:
-    pass
+    @email.setter
+    def email(self, novo_email: str) -> None:
+        novo_email = novo_email.strip().lower()
+        if not novo_email or not novo_email.endswith("@ufmg.br"):
+            raise DadosInvalidos("O e-mail deve ser institucional e terminar em '@ufmg.br'.")
+        self._email = novo_email

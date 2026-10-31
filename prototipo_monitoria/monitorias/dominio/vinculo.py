@@ -1,27 +1,32 @@
-from monitor import Monitor
-from disciplina import Disciplina
-
-# Verificar imports, ainda nao tenho atendimento.py
+from monitorias.dominio.monitor import Monitor
+from monitorias.dominio.disciplina import Disciplina
+from monitorias.dominio.atendimento import Atendimento
+from monitorias.dominio.horario import DIAS_VALIDOS
 
 class Vinculo:
 
-  def __init__(self, monitor: Monitor, disciplina: Disciplina) -> None:
-    self._monitor = monitor
-    self._disciplina = disciplina
-    self._atendimentos = [] #list[Atendimentos]
+    """Liga um monitor a uma disciplina e guarda os atendimentos desse vínculo."""
 
-  @property
-  def monitor(self) -> str:
-    return self._monitor
-  
-  @property
-  def disciplina(self) -> str:
-    return self._disciplina
+    def __init__(self, monitor: Monitor, disciplina: Disciplina) -> None:
+        """Cria um vínculo sem atendimentos."""
+        self._monitor = monitor
+        self._disciplina = disciplina
+        self._atendimentos: list[Atendimento] = []
 
-  @property
-  def atendimentos(self) -> tuple:
-    return tuple(sorted(self._atendimentos))
+    @property
+    def monitor(self) -> Monitor:
+        return self._monitor
+    
+    @property
+    def disciplina(self) -> Disciplina:
+        return self._disciplina
 
-  # Metodos
-  def adicionar_atendimento(self, atendimento: Atendimento) -> None:
-    self._atendimentos.append(atendimento)
+    @property
+    def atendimentos(self) -> tuple[Atendimento, ...]:
+        return tuple(sorted(self._atendimentos, key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio)))
+
+    # Metodos
+    def adicionar_atendimento(self, atendimento: Atendimento) -> None:
+        """Acrescenta um atendimento ao vínculo.
+          Só o 'CadastroMonitorias' chama o método após validação."""
+        self._atendimentos.append(atendimento)
