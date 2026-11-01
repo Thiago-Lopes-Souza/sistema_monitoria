@@ -1,3 +1,5 @@
+"""Horários de atendimento: classe abstrata Atendimento e as subclasses presencial e online."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -124,12 +126,13 @@ class AtendimentoPresencial(Atendimento):
 class AtendimentoOnline(Atendimento):
     """Atendimento por videochamada. Atributos extras (só leitura): plataforma e link.""" 
 
-    def __init__(self, dia:str, inicio:str, fim:str, plataforma : str, link : str,  registrado_em = None) -> None:
+    def __init__(self, dia: str, inicio: str, fim: str, plataforma: str, link: str,
+                 registrado_em: date | None = None) -> None:
         """Valida e cria o atendimento online.
 
         Recebe, além dos dados de Atendimento:
             plataforma: ex.: "Google Meet" (obrigatório).
-            link: ex.: "https://meet.exemplo/abc" (obrigatório; precisa comecar com https://).
+            link: ex.: "https://meet.exemplo/abc" (obrigatório; precisa começar com https://).
         Lança:
             DadosInvalidos se algum dado for inválido ou vazio.
         """

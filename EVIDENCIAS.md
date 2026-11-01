@@ -144,4 +144,17 @@ OK
 1. **Frente C, `consultar_monitorias`:** sem filtro de modalidade, a consulta passou a incluir o monitor vinculado sem horário, com lista vazia. Com filtro, continua só quem tem horário na modalidade. Entraram 2 testes em `test_consultar_monitorias.py`. Isso corrigiu o C1.
 2. **Frente A, `excecoes.py`:** textos ajustados à regra de linguagem do grupo: "fora do escopo do sistema em 2026/2.", "matrícula" com acento, "sistema" em minúscula. Os nomes, os atributos e o momento em que as exceções são lançadas não mudaram.
 3. **Frente B, sequência da F1:** redesenhada em `docs/sequencia_f1_cadastrar.md`. O loop agora cobre todos os vínculos do monitor, com `break` no conflito e `alt` com os dois desfechos.
-4. **Pendente (opcional):** em `SEM_HORARIOS_NA_MODALIDADE` o domínio devolve `itens` vazio. O menu faz uma segunda consulta, só de leitura, para mostrar os e-mails de contato.
+4. **Docstrings (item 5 do roteiro), principalmente da frente B, e estilo da frente A:**
+   - Docstrings acrescentadas nas properties de `Disciplina`, `Monitor` e `Vinculo`; no getter e
+     no setter de `Monitor.email` (o exemplo de "setter que valida"); em
+     `CadastroMonitorias.__init__`, `Disciplina.__eq__`/`__hash__` e nos `__init__` das exceções.
+     Todos os módulos do domínio ganharam docstring de módulo.
+   - Estilo: anotação de tipo em `AtendimentoOnline.__init__`, "começar" na docstring e
+     indentação de 4 espaços em `Disciplina`.
+   - Nenhum comportamento mudou: as saídas dos cenários ficaram idênticas e os 73 testes passam.
+5. **Ordem das validações na F1:** `cadastrar_atendimento` valida o formato do código antes de
+   procurar a matrícula. A sequência revisada passou a mostrar essa ordem (regra 1: formato). A
+   chamada de `validar_codigo` em `cadastrar_atendimento` é redundante, porque
+   `_buscar_disciplina` valida de novo. Ela foi mantida para não mudar a ordem dos erros sem
+   combinar com a frente B.
+6. **Para explicar no PDF:** em `SEM_HORARIOS_NA_MODALIDADE` o domínio devolve `itens` vazio. O menu faz uma segunda consulta, só de leitura, para mostrar os e-mails de contato.

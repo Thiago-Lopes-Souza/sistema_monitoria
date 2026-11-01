@@ -1,3 +1,5 @@
+"""Validação e conversão de dia da semana, horário "hh:mm" e código de disciplina."""
+
 from .excecoes import DadosInvalidos
 import re
 

@@ -1,3 +1,5 @@
+"""CadastroMonitorias: ponto único de entrada do domínio (F1, F2 e preparação dos dados)."""
+
 from monitorias.dominio.disciplina import Disciplina
 from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
@@ -13,6 +15,7 @@ class CadastroMonitorias:
       e coordena as funcionalidades"""
     
     def __init__(self) -> None:
+        """Cria um cadastro vazio, só em memória (os dados se perdem ao sair)."""
         self._disciplinas: dict[str, Disciplina] = {}        # chave: codigo
         self._monitores: dict[str, Monitor] = {}             # chave: matricula
         self._vinculos: dict[tuple[str, str], Vinculo] = {}  # chave: (matricula, codigo)

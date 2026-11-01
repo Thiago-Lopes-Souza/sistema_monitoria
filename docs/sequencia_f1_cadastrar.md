@@ -18,6 +18,8 @@ sequenceDiagram
     T->>N: «create» AtendimentoPresencial / AtendimentoOnline
     Note over N: valida dia, hh:mm, início < fim, local e link https://<br/>se inválido: DadosInvalidos e nada é criado
     T->>C: cadastrar_atendimento(matricula, codigo, novo)
+    C->>C: validar_codigo(codigo)
+    Note right of C: DadosInvalidos se não for AAA999
     C->>C: _buscar_monitor(matricula)
     Note right of C: MatriculaNaoCadastrada
     C->>C: _buscar_disciplina(codigo)
@@ -59,7 +61,11 @@ sequenceDiagram
    `resultado: bool`, e o valor `True` aparece só como condição do `break`.
 4. **Nada é gravado antes de todas as verificações.** `adicionar_atendimento` só é chamado no
    ramo "sem conflito". Na rejeição, os atendimentos de todos os vínculos ficam como estavam.
-5. **Os dados do horário são validados ao criar o objeto, antes do cadastro.** Formato, dia,
+5. **A ordem das verificações é a do código.** Primeiro o formato (dados do horário e código
+   `AAA999`), depois matrícula, disciplina no catálogo, vínculo e, por último, conflito. Se a
+   matrícula não existir e o código estiver mal formatado, aparece o erro do código (regra 1 do
+   contrato: formato).
+6. **Os dados do horário são validados ao criar o objeto, antes do cadastro.** Formato, dia,
    início < fim e local são checados no construtor de `Atendimento`. Por isso a validação aparece
    antes de `cadastrar_atendimento`.
 

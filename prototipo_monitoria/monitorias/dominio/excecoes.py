@@ -1,3 +1,5 @@
+"""Exceções do domínio. O menu captura só a base, ErroMonitorias, e mostra a mensagem."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -14,20 +16,36 @@ class DadosInvalidos(ErroMonitorias):
     """Formato ou valor inválido (dia, horário, código, email ...)"""
 
 class DisciplinaForaDoEscopo(ErroMonitorias):
-    """A disciplina informada está fora do escopo do Sistema"""
+    """A disciplina informada está fora do escopo do sistema.
+
+    Atributos:
+        codigo: código bem formado, mas fora do catálogo 2026/2.
+    """
     def __init__(self, codigo: str) -> None:
+        """Guarda o código e monta a mensagem."""
         self.codigo = codigo
         super().__init__(f"A disciplina {codigo} está fora do escopo do sistema em 2026/2.")
 
 class MatriculaNaoCadastrada(ErroMonitorias):
-    """A matrícula informada não pertence a nenhum monitor cadastrado no Sistema"""
+    """A matrícula informada não pertence a nenhum monitor cadastrado no sistema.
+
+    Atributos:
+        matricula: matrícula informada.
+    """
     def __init__(self, matricula: str) -> None:
+        """Guarda a matrícula e monta a mensagem."""
         self.matricula = matricula
         super().__init__(f"A matrícula {matricula} não pertence a nenhum monitor cadastrado no sistema.")
 
 class VinculoInexistente(ErroMonitorias):
-    """Verifica se o monitor específico está cadastrado naquela matéria"""
-    def __init__(self, matricula: str, codigo: str) ->None:
+    """O monitor existe, mas não é vinculado à disciplina informada.
+
+    Atributos:
+        matricula: matrícula do monitor.
+        codigo: código da disciplina.
+    """
+    def __init__(self, matricula: str, codigo: str) -> None:
+        """Guarda matrícula e código e monta a mensagem."""
         self.matricula = matricula
         self.codigo = codigo
         super().__init__(f"O monitor de matrícula {matricula} não é monitor da disciplina {codigo}.")
@@ -42,6 +60,7 @@ class ConflitoDeHorario(ErroMonitorias):
     """
 
     def __init__(self, vinculo: Vinculo, atendimento: Atendimento) -> None:
+        """Guarda o vínculo e o atendimento existentes e monta a mensagem."""
         self.vinculo = vinculo
         self.atendimento = atendimento
         super().__init__(
