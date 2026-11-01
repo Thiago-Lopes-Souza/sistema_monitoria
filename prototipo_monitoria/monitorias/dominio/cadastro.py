@@ -42,26 +42,6 @@ class CadastroMonitorias:
         self._vinculos[chave] = vinculo
         return vinculo
 
-    def cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
-        """Cadastra um atendimento no vínculo do monitor com a disciplina.
-          Lança MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
-          VinculoInexistente ou ConflitoDeHorario."""
-        codigo = validar_codigo(codigo)
-        monitor = self._buscar_monitor(matricula)
-        disciplina = self._buscar_disciplina(codigo)
-        vinculo = self._vinculos.get((monitor.matricula, disciplina.codigo))
-
-        if vinculo is None:
-            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
-        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
-
-        if conflito is not None:
-            vinculo_conflitante, existente = conflito
-            raise ConflitoDeHorario(vinculo_conflitante, existente)
-        
-        vinculo.adicionar_atendimento(atendimento)
-        return atendimento
-    
     def encontrar_conflito(self, matricula: str, atendimento: Atendimento) -> tuple[Vinculo, Atendimento] | None:
         """Método de CONSULTA.
           Procura nos vínculos do monitor um atendimento que se sobreponha ao informado."""
@@ -76,6 +56,26 @@ class CadastroMonitorias:
                     return vinculo, existente
                 
         return None
+
+    def cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
+        """Cadastra um atendimento no vínculo do monitor com a disciplina.
+          Lança MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
+          VinculoInexistente ou ConflitoDeHorario."""
+        codigo = validar_codigo(codigo)
+        monitor = self._buscar_monitor(matricula)
+        disciplina = self._buscar_disciplina(codigo)
+        vinculo = self._vinculos.get((monitor.matricula, disciplina.codigo)) # Retorna Vinculo ou None
+
+        if vinculo is None:
+            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
+        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
+
+        if conflito is not None:
+            vinculo_conflitante, existente = conflito
+            raise ConflitoDeHorario(vinculo_conflitante, existente)
+        
+        vinculo.adicionar_atendimento(atendimento)
+        return atendimento
     
 
     # -- AUXILIARES --

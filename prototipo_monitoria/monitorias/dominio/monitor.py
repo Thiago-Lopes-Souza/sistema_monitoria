@@ -2,7 +2,7 @@ from monitorias.dominio.excecoes import DadosInvalidos
 
 class Monitor:
 
-    """Monitor da UFMG..
+    """Monitor da UFMG.
     Guarda matrícula, nome e e-mail institucional.
     Matrícula e nome 'read only', o e-mail com setter e validação"""
 
