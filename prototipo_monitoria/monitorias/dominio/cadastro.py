@@ -124,7 +124,9 @@ class CadastroMonitorias:
         for v in vinculos:
             horarios = tuple(a for a in v.atendimentos
                              if filtro is None or a.modalidade() == filtro)
-            if horarios:
+            # Sem filtro, todo monitor vinculado aparece, mesmo sem horário
+            # (o aluno vê o e-mail); com filtro, só quem tem horário na modalidade.
+            if horarios or filtro is None:
                 itens.append(ItemConsulta(v.monitor, horarios))
 
         if not itens:

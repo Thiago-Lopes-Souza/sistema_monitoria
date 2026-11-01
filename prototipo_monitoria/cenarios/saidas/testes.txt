@@ -55,6 +55,7 @@ test_vincular_monitor_nao_cadastrado (test_cadastrar_atendimento.TestPreparacaoF
 test_codigo_em_minusculas_e_com_espacos_e_aceito (test_consultar_monitorias.TestConsultarMonitorias.test_codigo_em_minusculas_e_com_espacos_e_aceito) ... ok
 test_codigo_fora_do_catalogo_e_rejeitado_sem_alterar_nada (test_consultar_monitorias.TestConsultarMonitorias.test_codigo_fora_do_catalogo_e_rejeitado_sem_alterar_nada) ... ok
 test_codigo_mal_formatado_e_rejeitado_sem_alterar_nada (test_consultar_monitorias.TestConsultarMonitorias.test_codigo_mal_formatado_e_rejeitado_sem_alterar_nada) ... ok
+test_com_filtro_monitor_sem_horario_na_modalidade_nao_aparece (test_consultar_monitorias.TestConsultarMonitorias.test_com_filtro_monitor_sem_horario_na_modalidade_nao_aparece) ... ok
 test_com_horarios_lista_monitores_e_horarios_ordenados (test_consultar_monitorias.TestConsultarMonitorias.test_com_horarios_lista_monitores_e_horarios_ordenados) ... ok
 test_consultar_varias_vezes_nao_muda_dados (test_consultar_monitorias.TestConsultarMonitorias.test_consultar_varias_vezes_nao_muda_dados) ... ok
 test_filtro_online_mostra_so_horarios_online (test_consultar_monitorias.TestConsultarMonitorias.test_filtro_online_mostra_so_horarios_online) ... ok
@@ -68,9 +69,10 @@ test_modalidade_vazia_ou_none_equivale_a_todas (test_consultar_monitorias.TestCo
 test_monitor_sem_horarios_devolve_o_monitor_com_lista_vazia (test_consultar_monitorias.TestConsultarMonitorias.test_monitor_sem_horarios_devolve_o_monitor_com_lista_vazia) ... ok
 test_nenhuma_monitoria_cadastrada (test_consultar_monitorias.TestConsultarMonitorias.test_nenhuma_monitoria_cadastrada) ... ok
 test_resultado_e_imutavel (test_consultar_monitorias.TestConsultarMonitorias.test_resultado_e_imutavel) ... ok
+test_sem_filtro_monitor_vinculado_sem_horario_tambem_aparece (test_consultar_monitorias.TestConsultarMonitorias.test_sem_filtro_monitor_vinculado_sem_horario_tambem_aparece) ... ok
 test_sem_horarios_na_modalidade (test_consultar_monitorias.TestConsultarMonitorias.test_sem_horarios_na_modalidade) ... ok
 
 ----------------------------------------------------------------------
-Ran 71 tests in 0.002s
+Ran 73 tests in 0.002s
 
 OK

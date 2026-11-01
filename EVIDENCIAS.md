@@ -23,8 +23,10 @@ Comando usado em cada cenário (de dentro de `prototipo_monitoria/`):
     Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
       - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
       - quinta 14:00–16:00 | presencial | CAD 3, sala 204 | registrado em 01/11/2026
+    Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+      (sem horários cadastrados nesta disciplina)
   ```
-- **Conclusão: atendido em parte.** O cadastro e a ordem dos horários da Ana batem com o esperado. **Diverge:** o Caio não aparece na consulta. `consultar_monitorias` (frente C), na situação `COM_HORARIOS`, só inclui em `itens` os monitores que têm horário. Monitor vinculado sem horário fica de fora. O menu não tem como mostrá-lo sem acessar dados internos. **Pendente de decisão do grupo:** mudar o domínio para incluir esses monitores com `atendimentos=()`, ou ajustar o resultado esperado do C1.
+- **Conclusão: aprovado.** Na primeira execução, o Caio não aparecia: a consulta sem filtro omitia o monitor vinculado sem horário. A divergência foi corrigida em `consultar_monitorias`: sem filtro, todo monitor vinculado aparece, e quem não tem horário vem com a lista vazia. Foi coberta por dois testes novos, e o cenário foi repetido com o resultado acima.
 
 ## C2 — Rejeição, F1 (consultas antes e depois)
 
@@ -49,8 +51,10 @@ Comando usado em cada cenário (de dentro de `prototipo_monitoria/`):
   DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
     Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
       - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+    Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+      (sem horários cadastrados nesta disciplina)
   ```
-- **Conclusão: aprovado.** A mensagem cita o horário e a disciplina do conflito. MAT001 ficou idêntica antes e depois, e DCC203 não ganhou horário do Caio.
+- **Conclusão: aprovado.** A mensagem cita o horário e a disciplina do conflito. MAT001 ficou idêntica antes e depois. Em DCC203 o Caio continua sem horário.
 
 ## C3 — Limite e sequência, F1 + F2
 
@@ -87,49 +91,57 @@ Arquivo `extra_entradas_invalidas.txt`. Saída completa em `cenarios/saidas/extr
 | opção `abc` | `'abc' não é um número válido. Digite um número de 0 a 3.` (repete a pergunta) | ok |
 | opção `9` | `Opção 9 não existe. Digite um número de 0 a 3.` | ok |
 | código `dcc 20` | `Código de disciplina inválido: 'dcc 20'. Use três letras e três números, ex.: DCC203.` | ok |
-| `DCC999` | `A disciplina DCC999 está fora do escopo do Sistema em 2026/2 !` | ok |
+| `DCC999` | `A disciplina DCC999 está fora do escopo do sistema em 2026/2.` | ok |
 | `fis069` (minúsculas) | consulta funciona: FIS069 com "Há monitor cadastrado, mas os horários ainda não foram informados." + e-mail da Duda | ok |
 | modalidade `x` | `'x' não é um número válido. Digite um número de 1 a 2.` (repete) | ok |
 | dia `7` | `Opção 7 não existe. Digite um número de 1 a 6.` (repete) | ok |
 | 16:00 → 14:00 | `O início (16:00) precisa ser antes do fim (14:00).` | ok |
-| matrícula `2026999999` | `A matricula 2026999999 não pertence a nenhum monitor cadastrado no Sistema!` | ok |
-| Duda (2026000003) em DCC203 | `O monitor de matricula 2026000003 não é monitor da disciplina DCC203.` | ok |
+| matrícula `2026999999` | `A matrícula 2026999999 não pertence a nenhum monitor cadastrado no sistema.` | ok |
+| Duda (2026000003) em DCC203 | `O monitor de matrícula 2026000003 não é monitor da disciplina DCC203.` | ok |
 | link `http://inseguro` | `Link inválido: 'http://inseguro'. Ele precisa começar com https://.` | ok |
 | início `8h` | `Horário inválido: '8h'. Use o formato hh:mm, ex.: 14:30.` | ok |
+| Ana: terça 11:00–13:00 em DCC203 (ela já atende terça 10:00–12:00 **na mesma disciplina**) | `Conflito de horário: você já atende terça 10:00–12:00 em DCC203.` | ok |
 
-Toda rejeição de domínio termina com "Nenhum dado foi alterado.". **No fim, DCC203 continua só com terça 10:00–12:00 da Ana**: estado preservado. Fim da entrada sem `0` (Ctrl+D/Ctrl+Z) também encerra sem traceback.
+Toda rejeição de domínio termina com "Nenhum dado foi alterado.". **No fim, DCC203 continua só com terça 10:00–12:00 da Ana, e o Caio sem horário**: estado preservado. Fim da entrada sem `0` (Ctrl+D/Ctrl+Z) também encerra sem traceback.
+
+## Regra de horários sobrepostos do mesmo monitor
+
+O mesmo monitor não pode ter dois horários que se cruzem, **na mesma disciplina, entre
+disciplinas diferentes ou entre modalidades**. Horários que só encostam são aceitos, e monitores
+diferentes podem atender no mesmo horário. Evidências pelo menu: C2 (entre disciplinas), roteiro
+extra (mesma disciplina) e C3 (encostado, aceito). Testes: `TestSobreposicao` e os testes de
+conflito de `test_cadastrar_atendimento.py`. A sequência revisada está em
+`docs/sequencia_f1_cadastrar.md`.
 
 ## Testes automáticos
 
-`python -m unittest discover -s tests -v`: **71 testes, todos OK.** Saída completa em
-`cenarios/saidas/testes.txt`.
+`python -m unittest discover -s tests -v`: **73 testes, todos OK.** Saída completa em
+`cenarios/saidas/testes.txt`. Eram 71; entraram 2 para o monitor vinculado sem horário na consulta.
 
 ```
 ----------------------------------------------------------------------
-Ran 71 tests in 0.002s
+Ran 73 tests in 0.002s
 
 OK
 ```
 
 ## Conferência do ZIP
 
-`prototipo-monitorias.zip` (27 arquivos: código, testes, cenários e README; sem `__pycache__`,
-`.git`, venv nem `saidas/`). Foi extraído numa pasta limpa e só o README foi seguido:
+`prototipo-monitorias.zip` contém código, testes, cenários e README. Não contém `__pycache__`,
+`.git`, venv nem `saidas/`. Foi extraído numa pasta limpa e só o README foi seguido:
 
 - `python -m monitorias` iniciou;
-- o cenário C1 rodou de ponta a ponta (F1 cadastrou, F2 mostrou o horário novo);
-- `python -m unittest discover -s tests -v` rodou os 71 testes: OK.
+- o cenário C1 rodou de ponta a ponta (F1 cadastrou, F2 mostrou o horário novo e o Caio sem horário);
+- `python -m unittest discover -s tests -v` rodou os 73 testes: OK.
 
 ## Trechos de código para captura (frente D)
 
 - `monitorias/menu.py`, linhas 58–82: `ler_opcao()`, com o `try/except ValueError` da falha de conversão (linhas 73–78).
-- `monitorias/menu.py`, linhas 226–258: `executar()`, com o ponto único que captura `ConflitoDeHorario`/`ErroMonitorias` (linhas 248–255) e `EOFError`/`KeyboardInterrupt` (linha 256).
+- `monitorias/menu.py`, linhas 228–260: `executar()`, com o ponto único que captura `ConflitoDeHorario`/`ErroMonitorias` (linhas 250–257) e `EOFError`/`KeyboardInterrupt` (linha 258).
 
-## Pontos para levar ao grupo
+## Ajustes feitos depois da primeira execução (avisar ao grupo)
 
-1. **C1 / frente C:** o monitor vinculado sem horário (Caio em DCC203) não aparece em `COM_HORARIOS`. Veja o C1 acima.
-2. **Frente C:** em `SEM_HORARIOS_NA_MODALIDADE` os `itens` vêm vazios. Para mostrar os e-mails pedidos na seção 7, o menu faz uma segunda consulta, só de leitura, sem filtro. Se o domínio passar a incluir os monitores nessa situação, essa chamada extra sai do menu.
-3. **Frente A, texto de mensagens:**
-   - `DisciplinaForaDoEscopo`: "fora do escopo do Sistema em 2026/2 !" tem espaço antes do "!" e "Sistema" com maiúscula.
-   - `MatriculaNaoCadastrada` e `VinculoInexistente`: "matricula" está sem acento.
-4. **Estrutura:** a pasta do projeto no repositório é `prototipo_monitoria/`. O CLAUDE.md fala em `prototipo-monitorias/`. Os comandos funcionam igual.
+1. **Frente C, `consultar_monitorias`:** sem filtro de modalidade, a consulta passou a incluir o monitor vinculado sem horário, com lista vazia. Com filtro, continua só quem tem horário na modalidade. Entraram 2 testes em `test_consultar_monitorias.py`. Isso corrigiu o C1.
+2. **Frente A, `excecoes.py`:** textos ajustados à regra de linguagem do grupo: "fora do escopo do sistema em 2026/2.", "matrícula" com acento, "sistema" em minúscula. Os nomes, os atributos e o momento em que as exceções são lançadas não mudaram.
+3. **Frente B, sequência da F1:** redesenhada em `docs/sequencia_f1_cadastrar.md`. O loop agora cobre todos os vínculos do monitor, com `break` no conflito e `alt` com os dois desfechos.
+4. **Pendente (opcional):** em `SEM_HORARIOS_NA_MODALIDADE` o domínio devolve `itens` vazio. O menu faz uma segunda consulta, só de leitura, para mostrar os e-mails de contato.

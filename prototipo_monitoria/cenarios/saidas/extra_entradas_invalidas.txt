@@ -29,7 +29,7 @@ Código da disciplina (ex.: DCC203): DCC999
 Modalidade: Enter = todas, 1 = presencial, 2 = online
 Modalidade: 
 
-Não foi possível concluir: A disciplina DCC999 está fora do escopo do Sistema em 2026/2 !
+Não foi possível concluir: A disciplina DCC999 está fora do escopo do sistema em 2026/2.
 Nenhum dado foi alterado.
 
 --- Menu principal ---
@@ -61,6 +61,8 @@ Modalidade:
 DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
   Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
     - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
 
 --- Menu principal ---
 1 - Consultar monitorias de uma disciplina (aluno)
@@ -101,7 +103,7 @@ Dia (1 a 6): 4
 Início (hh:mm): 14:00
 Fim (hh:mm): 16:00
 
-Não foi possível concluir: A matricula 2026999999 não pertence a nenhum monitor cadastrado no Sistema!
+Não foi possível concluir: A matrícula 2026999999 não pertence a nenhum monitor cadastrado no sistema.
 Nenhum dado foi alterado.
 
 --- Menu principal ---
@@ -121,7 +123,7 @@ Dia (1 a 6): 4
 Início (hh:mm): 14:00
 Fim (hh:mm): 16:00
 
-Não foi possível concluir: O monitor de matricula 2026000003 não é monitor da disciplina DCC203.
+Não foi possível concluir: O monitor de matrícula 2026000003 não é monitor da disciplina DCC203.
 Nenhum dado foi alterado.
 
 --- Menu principal ---
@@ -169,6 +171,26 @@ Nenhum dado foi alterado.
 2 - Cadastrar horário de atendimento (monitor)
 3 - Listar disciplinas do sistema
 0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000001
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 2
+Início (hh:mm): 11:00
+Fim (hh:mm): 13:00
+
+Não foi possível concluir: Conflito de horário: você já atende terça 10:00–12:00 em DCC203.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
 Escolha uma opção: 1
 Código da disciplina (ex.: DCC203): DCC203
 Modalidade: Enter = todas, 1 = presencial, 2 = online
@@ -177,6 +199,8 @@ Modalidade:
 DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
   Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
     - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
 
 --- Menu principal ---
 1 - Consultar monitorias de uma disciplina (aluno)

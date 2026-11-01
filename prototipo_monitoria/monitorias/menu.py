@@ -131,6 +131,8 @@ def formatar_resultado(resultado: ResultadoConsulta,
             linhas.append(f"  Monitor(a): {item.monitor.nome} <{item.monitor.email}>")
             for atendimento in item.atendimentos:
                 linhas.append(f"    - {formatar_atendimento(atendimento)}")
+            if not item.atendimentos:
+                linhas.append("    (sem horários cadastrados nesta disciplina)")
     elif situacao is SituacaoConsulta.MONITOR_SEM_HORARIOS:
         linhas.append("  Há monitor cadastrado, mas os horários ainda não foram informados.")
         for item in resultado.itens:

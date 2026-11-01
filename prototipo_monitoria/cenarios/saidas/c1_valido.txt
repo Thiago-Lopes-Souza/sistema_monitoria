@@ -35,6 +35,8 @@ DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
   Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
     - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
     - quinta 14:00–16:00 | presencial | CAD 3, sala 204 | registrado em 01/11/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
 
 --- Menu principal ---
 1 - Consultar monitorias de uma disciplina (aluno)

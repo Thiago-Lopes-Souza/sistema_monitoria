@@ -105,6 +105,21 @@ class TestConsultarMonitorias(unittest.TestCase):
         self.assertEqual(r.itens[1].atendimentos, (self.h_davi,))
         self._assert_nao_alterou(antes)
  
+    def test_sem_filtro_monitor_vinculado_sem_horario_tambem_aparece(self):
+        antes = self._foto()
+        # CCC333: Fábio tem horário; Gabi está vinculada, mas sem horário.
+        r = self.cadastro.consultar_monitorias("CCC333")
+
+        self.assertEqual(r.situacao, SituacaoConsulta.COM_HORARIOS)
+        self.assertEqual([i.monitor.nome for i in r.itens], ["Fabio Teste", "Gabi Teste"])
+        self.assertEqual(r.itens[0].atendimentos, (self.h_fabio,))
+        self.assertEqual(r.itens[1].atendimentos, ())
+        self._assert_nao_alterou(antes)
+
+    def test_com_filtro_monitor_sem_horario_na_modalidade_nao_aparece(self):
+        r = self.cadastro.consultar_monitorias("CCC333", "presencial")
+        self.assertEqual([i.monitor.nome for i in r.itens], ["Fabio Teste"])
+
     def test_local_e_modalidade_vem_de_cada_subclasse(self):
         r = self.cadastro.consultar_monitorias("AAA111")
         terca, quinta = r.itens[0].atendimentos
