@@ -1,0 +1,187 @@
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Protótipo com dados FICTÍCIOS (nomes, matrículas, e-mails e links).
+Os dados ficam só em memória: o que for cadastrado se perde ao sair.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: abc
+'abc' não é um número válido. Digite um número de 0 a 3.
+Escolha uma opção: 9
+Opção 9 não existe. Digite um número de 0 a 3.
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): dcc 20
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+Não foi possível concluir: Código de disciplina inválido: 'dcc 20'. Use três letras e três números, ex.: DCC203.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC999
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+Não foi possível concluir: A disciplina DCC999 está fora do escopo do Sistema em 2026/2 !
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): fis069
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+FIS069 — Física III (modalidade: todas)
+  Há monitor cadastrado, mas os horários ainda não foram informados.
+  Contato: Duda Teste <duda.teste@ufmg.br>
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: x
+'x' não é um número válido. Digite um número de 1 a 2.
+Modalidade: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000001
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 7
+Opção 7 não existe. Digite um número de 1 a 6.
+Dia (1 a 6): 4
+Início (hh:mm): 16:00
+Fim (hh:mm): 14:00
+
+Não foi possível concluir: O início (16:00) precisa ser antes do fim (14:00).
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026999999
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 4
+Início (hh:mm): 14:00
+Fim (hh:mm): 16:00
+
+Não foi possível concluir: A matricula 2026999999 não pertence a nenhum monitor cadastrado no Sistema!
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000003
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 4
+Início (hh:mm): 14:00
+Fim (hh:mm): 16:00
+
+Não foi possível concluir: O monitor de matricula 2026000003 não é monitor da disciplina DCC203.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000001
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 2
+Plataforma (ex.: Google Meet): Google Meet
+Link (começando com https://): http://inseguro
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 4
+Início (hh:mm): 14:00
+Fim (hh:mm): 16:00
+
+Não foi possível concluir: Link inválido: 'http://inseguro'. Ele precisa começar com https://.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000001
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 4
+Início (hh:mm): 8h
+Fim (hh:mm): 10:00
+
+Não foi possível concluir: Horário inválido: '8h'. Use o formato hh:mm, ex.: 14:30.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. Os dados cadastrados nesta execução foram descartados.
