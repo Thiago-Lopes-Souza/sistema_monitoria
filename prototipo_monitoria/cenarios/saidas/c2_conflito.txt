@@ -1,0 +1,77 @@
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Protótipo com dados FICTÍCIOS (nomes, matrículas, e-mails e links).
+Os dados ficam só em memória: o que for cadastrado se perde ao sair.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): MAT001
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+MAT001 — Cálculo Diferencial e Integral I (modalidade: todas)
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    - terça 14:00–16:00 | presencial | ICEx, sala 1010 | registrado em 20/10/2026
+    - quinta 19:00–20:00 | online | Google Meet: https://meet.exemplo/mat001 | registrado em 20/10/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000002
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 2
+Início (hh:mm): 15:00
+Fim (hh:mm): 17:00
+
+Não foi possível concluir: Conflito de horário: você já atende terça 14:00–16:00 em MAT001.
+Nenhum dado foi alterado.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): MAT001
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+MAT001 — Cálculo Diferencial e Integral I (modalidade: todas)
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    - terça 14:00–16:00 | presencial | ICEx, sala 1010 | registrado em 20/10/2026
+    - quinta 19:00–20:00 | online | Google Meet: https://meet.exemplo/mat001 | registrado em 20/10/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. Os dados cadastrados nesta execução foram descartados.
