@@ -6,7 +6,11 @@ from monitorias.dominio.vinculo import Vinculo
 from monitorias.dominio.atendimento import Atendimento, AtendimentoOnline, AtendimentoPresencial
 from monitorias.dominio.consulta import ItemConsulta, ResultadoConsulta, SituacaoConsulta
 from monitorias.dominio.horario import validar_codigo, validar_dia
-from monitorias.dominio.excecoes import (ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente)
+from monitorias.dominio.excecoes import (
+    ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente, CredenciaisInvalidas)
+from monitorias.persistencia.repositorio import RepositorioMonitorias
+from monitorias.dominio.senha import conferir_senha
+from monitorias.dominio.usuario import UsuarioCadastrado
 
 
 class CadastroMonitorias:
@@ -14,50 +18,77 @@ class CadastroMonitorias:
     """Ponto de entrada do domínio (comunicação com menu): guarda disciplinas, monitores e vínculos
       e coordena as funcionalidades"""
     
-    def __init__(self) -> None:
-        """Cria um cadastro vazio, só em memória (os dados se perdem ao sair)."""
-        self._disciplinas: dict[str, Disciplina] = {}        # chave: codigo
-        self._monitores: dict[str, Monitor] = {}             # chave: matricula
-        self._vinculos: dict[tuple[str, str], Vinculo] = {}  # chave: (matricula, codigo)
+    def __init__(self, repositorio: RepositorioMonitorias):
+        """Recebe o repositório responsável pela persistência dos dados."""
+        self._repositorio = repositorio
 
     def adicionar_disciplina(self, disciplina: Disciplina) -> None:
         """Registra uma disciplina no sistema."""
-        if disciplina.codigo in self._disciplinas:
+        if disciplina.codigo in self._repositorio.listar_disciplinas():
             raise DadosInvalidos("A disciplina já está cadastrada!")
-        self._disciplinas[disciplina.codigo] = disciplina
+        self._repositorio.inserir_disciplina(disciplina)
 
     def adicionar_monitor(self, monitor: Monitor) -> None:
-        """Registra um monitor pela matrícula."""
-        if monitor.matricula in self._monitores:
+        """Registra um monitor no sistema."""
+        if monitor.matricula in self._repositorio.buscar_usuario(monitor.matricula):
             raise DadosInvalidos("O monitor já está cadastrado!")
-        self._monitores[monitor.matricula] = monitor
+        self._repositorio._inserir_usuario()
 
     def vincular(self, matricula: str, codigo: str) -> Vinculo:
         """Cria o vínculo entre um monitor e uma disciplina já cadastrados."""
         monitor = self._buscar_monitor(matricula)
         disciplina = self._buscar_disciplina(codigo)
-        chave = (monitor.matricula, disciplina.codigo)
 
-        if chave in self._vinculos:
+        if matricula in self._repositorio.vinculos_do_monitor(matricula):
             raise DadosInvalidos(f"O monitor {monitor.nome} já está vinculado a disciplina {disciplina.codigo}!")
 
         vinculo = Vinculo(monitor, disciplina)
-        self._vinculos[chave] = vinculo
         return vinculo
 
-    def encontrar_conflito(self, matricula: str, atendimento: Atendimento) -> tuple[Vinculo, Atendimento] | None:
-        """Método de CONSULTA.
-          Procura nos vínculos do monitor um atendimento que se sobreponha ao informado."""
+    def entrar(self, matricula: str, senha: str):
+        """Autentica um monitor ou administrador.
+        Recebe matrícula e senha.
+        Retorna o usuário autenticado.
+        Lança CredenciaisInvalidas se o login falhar.
+        """
+        if not isinstance(matricula, str) or not isinstance(senha, str) or not matricula.strip() or not senha:
+            raise CredenciaisInvalidas("Matrícula ou senha inválida")
         matricula = matricula.strip()
 
-        for vinculo in self._vinculos.values():
-            
-            if vinculo.monitor.matricula != matricula:
-                continue
+        credenciais = self._repositorio.buscar_credenciais(matricula)
+
+        if credenciais is None:
+            raise CredenciaisInvalidas("Matrícula ou senha inválida.")
+        
+    # Verifica a senha informada.
+        senha_hash, senha_sal = credenciais
+
+        if not conferir_senha(senha, senha_hash, senha_sal):
+            raise CredenciaisInvalidas("Matrícula ou senha inválida.")
+
+    # Recupera o usuário autenticado.
+        usuario = self._repositorio.buscar_usuario(matricula)
+        if usuario is None:
+            raise CredenciaisInvalidas("Matrícula ou senha inválida.")
+        
+        return usuario
+
+    def encontrar_conflito(self, matricula: str, atendimento: Atendimento, ignorar_id: int | None = None) -> tuple[Vinculo, Atendimento] | None:
+        """Método de CONSULTA.
+        Procura nos vínculos do monitor um atendimento que se sobreponha ao informado.
+        ignorar_id permite desconsiderar o próprio atendimento durante uma alteração de horário  
+        """
+        matricula = matricula.strip()
+
+        vinculos = self._repositorio.vinculos_do_monitor(matricula)
+        for vinculo in vinculos:
             for existente in vinculo.atendimentos:
+                if existente.id == ignorar_id and ignorar_id is not None:
+                    continue
+
                 if atendimento.sobrepoe(existente):
                     return vinculo, existente
-                
+
         return None
 
     def cadastrar_presencial(self, matricula: str, codigo: str, dia: str, inicio: str, fim: str, predio: str, sala: str) -> Atendimento:
@@ -82,52 +113,9 @@ class CadastroMonitorias:
         atendimento = AtendimentoOnline(dia, inicio, fim, plataforma, link)
 
         return self._cadastrar_atendimento(matricula, codigo, atendimento)
-    
-    # =============================  AUXILIARES  ===========================================================
-    
-    def _buscar_monitor(self, matricula: str) -> Monitor:
-        """Retorna o monitor ou lança MatriculaNaoCadastrada."""
-        matricula = matricula.strip()
-        monitor = self._monitores.get(matricula)
-        if monitor is None:
-            raise MatriculaNaoCadastrada(matricula)
-        return monitor
 
-    def _buscar_disciplina(self, codigo: str) -> Disciplina:
-        """Retorna a disciplina cadastrada, ou lança DadosInvalidos ou DisciplinaForaDoEscopo."""
-        codigo = validar_codigo(codigo)
-        disciplina = self._disciplinas.get(codigo)
-        if disciplina is None:
-            raise DisciplinaForaDoEscopo(codigo)
-        return disciplina
 
-    def _cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
-        """Valida o vínculo e os conflitos antes de cadastrar o atendimento.
-            Retorna o atendimento cadastrado.
-            Lança exceções de cadastro inválido ou ConflitoDeHorario.
-            Não modifica os registros em caso de rejeição."""
-        
-        codigo = validar_codigo(codigo)
-        monitor = self._buscar_monitor(matricula)
-        disciplina = self._buscar_disciplina(codigo)
-
-        vinculo = self._vinculos.get((monitor.matricula, disciplina.codigo)) # Retorna Vinculo ou None
-
-        if vinculo is None:
-            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
-        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
-
-        if conflito is not None:
-            vinculo_conflitante, existente = conflito
-            raise ConflitoDeHorario(vinculo_conflitante, existente)
-        
-        vinculo._adicionar_atendimento(atendimento)
-        return atendimento
-
-    # ======================================================================================================   
-
-    def consultar_monitorias(self, codigo: str, modalidade: str | None = None,
-                             dia: str | None = None) -> ResultadoConsulta:
+    def consultar_monitorias(self, codigo: str, modalidade: str | None = None, dia: str | None = None) -> ResultadoConsulta:
         """F2: consulta monitores e horários de uma disciplina (só leitura).
           Recebe o código (AAA999, maiúsculas ou minúsculas) e, opcionalmente, a
           modalidade ("presencial" ou "online") e o dia da semana. Vazio ou None
@@ -136,6 +124,7 @@ class CadastroMonitorias:
           Lança DadosInvalidos (código mal formatado, modalidade ou dia
           desconhecidos) e DisciplinaForaDoEscopo (código fora do catálogo).
           Não altera nenhum dado, nem quando rejeita."""
+        
         if not isinstance(codigo, str):
             raise DadosInvalidos("O código da disciplina deve ser um texto.")
         filtro = self._normalizar_modalidade(modalidade)
@@ -170,8 +159,56 @@ class CadastroMonitorias:
             disciplina, SituacaoConsulta.COM_HORARIOS, tuple(itens), filtro, filtro_dia)
 
     def listar_disciplinas(self) -> tuple[Disciplina, ...]:
-        """Lista as disciplinas do catálogo, ordenadas pelo código."""
-        return tuple(sorted(self._disciplinas.values(), key=lambda d: d.codigo))
+        """Lista as disciplinas do catálogo no repositório, ordenadas pelo código."""
+        return self._repositorio.listar_disciplinas()
+    
+    # =============================  AUXILIARES  ===========================================================
+    
+    def _buscar_monitor(self, matricula: str) -> Monitor:
+        """Busca um monitor no repositório pela matrícula."""
+        matricula = matricula.strip()
+        usuario = self._repositorio.buscar_usuario(matricula)
+        
+        if not isinstance(usuario, Monitor):
+            raise MatriculaNaoCadastrada(matricula)
+        
+        return usuario
+
+    def _buscar_disciplina(self, codigo: str) -> Disciplina:
+        """Busca um monitor no repositório pela matrícula."""
+        codigo = validar_codigo(codigo)
+        disciplina = self._repositorio.buscar_disciplina(codigo)
+        
+        if disciplina is None:
+            raise DisciplinaForaDoEscopo(codigo)
+        
+        return disciplina
+
+    def _cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
+        """Valida o vínculo e os conflitos antes de gravar
+        o atendimento no repositório SQLite.
+        Retorna o atendimento cadastrado, já com seu ID.
+        Não altera o banco em caso de rejeição.
+        """
+        
+        codigo = validar_codigo(codigo)
+        monitor = self._buscar_monitor(matricula)
+        disciplina = self._buscar_disciplina(codigo)
+
+        vinculo = self._repositorio.buscar_vinculo(monitor.matricula, disciplina.codigo) # Retorna Vinculo ou None
+
+        if vinculo is None:
+            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
+        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
+
+        if conflito is not None:
+            vinculo_conflitante, existente = conflito
+            raise ConflitoDeHorario(vinculo_conflitante, existente)
+        
+        with self._repositorio.transacao():
+            cadastrado = self._repositorio.inserir_atendimento(monitor.matricula, disciplina.codigo, atendimento)
+
+        return cadastrado
 
     @staticmethod
     def _normalizar_dia(dia: str | None) -> str | None:
@@ -201,3 +238,6 @@ class CadastroMonitorias:
                 "Modalidade desconhecida: use 'presencial', 'online' "
                 "ou deixe em branco para ver todas.")
         return texto
+
+    # ======================================================================================================   
+    

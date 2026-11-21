@@ -86,3 +86,6 @@ class RegistroDuplicado(ErroMonitorias):
         self.tipo = tipo
         self.chave = chave
         super().__init__(f"Registro duplicado: já existe {tipo} {chave} no sistema.")
+
+class CredenciaisInvalidas(ErroMonitorias):
+    """Matrícula inexistente ou senha incorreta."""
