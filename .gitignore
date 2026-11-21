@@ -224,3 +224,8 @@ __pycache__/
 .DS_Store
 .venv/
 *.zip
+
+# Base de dados de uso (gerada pelo seed_demo; não vai para o Git)
+*.db
+*.db-journal
+prototipo_monitoria/dados/
