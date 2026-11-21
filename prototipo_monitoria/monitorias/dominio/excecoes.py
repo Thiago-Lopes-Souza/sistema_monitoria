@@ -68,3 +68,21 @@ class ConflitoDeHorario(ErroMonitorias):
             f"{atendimento.dia} {atendimento.inicio}–{atendimento.fim} "
             f"em {vinculo.disciplina.codigo}."
         )
+
+class RegistroDuplicado(ErroMonitorias):
+    """Tentativa de gravar um registro cuja chave já existe na base.
+
+    O domínio deve conferir antes de gravar; esta exceção é a rede de segurança
+    lançada pelo repositório quando a base recusa a chave repetida (disciplina,
+    matrícula ou vínculo).
+
+    Atributos:
+        tipo: o que se tentou gravar, ex.: "disciplina".
+        chave: a chave repetida, ex.: "DCC203".
+    """
+
+    def __init__(self, tipo: str, chave: str) -> None:
+        """Guarda o tipo e a chave e monta a mensagem."""
+        self.tipo = tipo
+        self.chave = chave
+        super().__init__(f"Registro duplicado: já existe {tipo} {chave} no sistema.")

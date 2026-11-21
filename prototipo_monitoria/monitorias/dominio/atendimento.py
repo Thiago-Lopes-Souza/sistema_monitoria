@@ -12,13 +12,18 @@ class Atendimento(ABC):
     """Um horário semanal em que o monitor atende alunos.
 
     Classe abstrata: só as subclasses (presencial e online) podem ser criadas.
-    Atributos, todos só leitura: dia, inicio, fim, registrado_em.
+    Atributos, todos só leitura: id, dia, inicio, fim, registrado_em.
     """
 
     def __init__(self, dia: str, inicio: str, fim: str,
-                 registrado_em: date | None = None) -> None:
+                 registrado_em: date | None = None, *,
+                 id_atendimento: int | None = None) -> None:
         """Valida e cria o atendimento.
 
+        Recebe, além dos dados do horário:
+            id_atendimento: identificador dado pela base de dados. Fica None
+                enquanto o atendimento ainda não foi gravado; só o repositório
+                o informa, ao montar o objeto a partir de uma linha da tabela.
         Lança:
             DadosInvalidos se o dia ou os horários forem inválidos,
             ou se o início não for antes do fim.
@@ -36,6 +41,12 @@ class Atendimento(ABC):
         self._inicio = minutos_inicio
         self._fim = minutos_fim
         self._registrado_em = registrado_em
+        self._id = id_atendimento
+
+    @property
+    def id(self) -> int | None:
+        """Identificador na base de dados; None se ainda não foi gravado. Só leitura."""
+        return self._id
 
     @property
     def dia(self) -> str:
@@ -87,7 +98,8 @@ class AtendimentoPresencial(Atendimento):
     """Atendimento numa sala física. Atributos extras (só leitura): predio e sala."""
 
     def __init__(self, dia: str, inicio: str, fim: str, predio: str, sala: str,
-                 registrado_em: date | None = None) -> None:
+                 registrado_em: date | None = None, *,
+                 id_atendimento: int | None = None) -> None:
         """Valida e cria o atendimento presencial.
 
         Recebe, além dos dados de Atendimento:
@@ -96,7 +108,8 @@ class AtendimentoPresencial(Atendimento):
         Lança:
             DadosInvalidos se algum dado for inválido ou vazio.
         """
-        super().__init__(dia, inicio, fim, registrado_em)   # a mãe valida o que é comum
+        super().__init__(dia, inicio, fim, registrado_em,    # a mãe valida o que é comum
+                         id_atendimento=id_atendimento)
         predio = predio.strip()
         sala = sala.strip()
         if not predio or not sala:
@@ -127,7 +140,8 @@ class AtendimentoOnline(Atendimento):
     """Atendimento por videochamada. Atributos extras (só leitura): plataforma e link.""" 
 
     def __init__(self, dia: str, inicio: str, fim: str, plataforma: str, link: str,
-                 registrado_em: date | None = None) -> None:
+                 registrado_em: date | None = None, *,
+                 id_atendimento: int | None = None) -> None:
         """Valida e cria o atendimento online.
 
         Recebe, além dos dados de Atendimento:
@@ -137,7 +151,8 @@ class AtendimentoOnline(Atendimento):
             DadosInvalidos se algum dado for inválido ou vazio.
         """
 
-        super().__init__(dia, inicio, fim, registrado_em)
+        super().__init__(dia, inicio, fim, registrado_em,
+                         id_atendimento=id_atendimento)
         plataforma = plataforma.strip()
         link = link.strip()
         if not plataforma or not link:
