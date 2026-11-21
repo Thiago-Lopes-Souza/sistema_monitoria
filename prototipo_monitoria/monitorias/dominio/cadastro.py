@@ -5,12 +5,14 @@ from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
 from monitorias.dominio.atendimento import Atendimento, AtendimentoOnline, AtendimentoPresencial
 from monitorias.dominio.consulta import ItemConsulta, ResultadoConsulta, SituacaoConsulta
-from monitorias.dominio.horario import validar_codigo, validar_dia
+from monitorias.dominio.horario import validar_codigo, validar_dia, DIAS_VALIDOS
 from monitorias.dominio.excecoes import (
-    ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente, CredenciaisInvalidas)
+    ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo,
+    MatriculaNaoCadastrada, VinculoInexistente, CredenciaisInvalidas,
+    PermissaoNegada, AtendimentoInexistente, RegistroDuplicado)
 from monitorias.persistencia.repositorio import RepositorioMonitorias
-from monitorias.dominio.senha import conferir_senha
-from monitorias.dominio.usuario import UsuarioCadastrado
+from monitorias.dominio.senha import gerar_hash_senha, conferir_senha
+from monitorias.dominio.usuario import UsuarioCadastrado, Usuario, Operacao, Administrador
 
 
 class CadastroMonitorias:
@@ -22,37 +24,91 @@ class CadastroMonitorias:
         """Recebe o repositório responsável pela persistência dos dados."""
         self._repositorio = repositorio
 
-    def adicionar_disciplina(self, disciplina: Disciplina) -> None:
-        """Registra uma disciplina no sistema."""
-        if disciplina.codigo in self._repositorio.listar_disciplinas():
-            raise DadosInvalidos("A disciplina já está cadastrada!")
-        self._repositorio.inserir_disciplina(disciplina)
 
-    def adicionar_monitor(self, monitor: Monitor) -> None:
-        """Registra um monitor no sistema."""
-        if monitor.matricula in self._repositorio.buscar_usuario(monitor.matricula):
-            raise DadosInvalidos("O monitor já está cadastrado!")
-        self._repositorio._inserir_usuario()
+    def cadastrar_disciplina(self,usuario: Usuario,codigo: str,nome: str) -> Disciplina:
+        """Cadastra uma disciplina no sistema."""
 
-    def vincular(self, matricula: str, codigo: str) -> Vinculo:
-        """Cria o vínculo entre um monitor e uma disciplina já cadastrados."""
+        # Verifica a permissão do administrador
+        if (not isinstance(usuario, Administrador) or not usuario.pode(Operacao.CADASTRAR_DISCIPLINA)):
+            raise PermissaoNegada("Usuário sem permissão para cadastrar disciplinas.")
+
+        # Cria e valida a disciplina.
+        disciplina = Disciplina(codigo, nome)
+
+        # Verifica se o código já está cadastrado
+        existente = self._repositorio.buscar_disciplina(disciplina.codigo)
+
+        if existente is not None:
+            raise RegistroDuplicado("disciplina", disciplina.codigo)
+
+        # Grava no SQLite
+        with self._repositorio.transacao():
+            self._repositorio.inserir_disciplina(disciplina)
+
+        return disciplina
+
+
+    def cadastrar_monitor(self, usuario: Usuario, matricula: str, nome: str, email: str, senha_inicial: str) -> Monitor:
+        """Cadastra um monitor com senha inicial."""
+
+        # Verifica a permissão do administrador
+        if (not isinstance(usuario, Administrador)or not usuario.pode(Operacao.CADASTRAR_MONITOR)):
+            raise PermissaoNegada("Usuário sem permissão para cadastrar monitores.")
+
+        # Cria e valida o monitor
+        monitor = Monitor(matricula, nome, email)
+
+        # Verifica se a matrícula já está cadastrada
+        existente = self._repositorio.buscar_usuario(monitor.matricula)
+
+        if existente is not None:
+            raise RegistroDuplicado("matrícula", monitor.matricula)
+
+        # Gera o hash e o sal da senha inicial
+        senha_hash, senha_sal = gerar_hash_senha(senha_inicial)
+
+        # Grava o monitor e suas credenciais no SQLite
+        with self._repositorio.transacao():
+            self._repositorio.inserir_monitor(monitor, senha_hash, senha_sal)
+
+        return monitor
+
+
+    def vincular(self, usuario: Usuario, matricula: str, codigo: str) -> Vinculo:
+        """Vincula um monitor a uma disciplina."""
+
+        # Verifica a permissão do administrador
+        if (not isinstance(usuario, Administrador) or not usuario.pode(Operacao.VINCULAR)):
+            raise PermissaoNegada("Usuário sem permissão para vincular monitores.")
+
+        # Busca o monitor e a disciplina no SQLite
         monitor = self._buscar_monitor(matricula)
         disciplina = self._buscar_disciplina(codigo)
 
-        if matricula in self._repositorio.vinculos_do_monitor(matricula):
-            raise DadosInvalidos(f"O monitor {monitor.nome} já está vinculado a disciplina {disciplina.codigo}!")
+        # Verifica se o vínculo já existe
+        existente = self._repositorio.buscar_vinculo(monitor.matricula,disciplina.codigo)
 
-        vinculo = Vinculo(monitor, disciplina)
+        if existente is not None:
+            raise RegistroDuplicado("vínculo",f"{monitor.matricula}-{disciplina.codigo}")
+
+        # Grava o vínculo no SQLite
+        with self._repositorio.transacao():
+            self._repositorio.inserir_vinculo(monitor.matricula, disciplina.codigo)
+
+        # Recupera o vínculo recém-cadastrado
+        vinculo = self._repositorio.buscar_vinculo(monitor.matricula, disciplina.codigo)
+
         return vinculo
 
-    def entrar(self, matricula: str, senha: str):
+
+    def entrar(self, matricula: str, senha: str) -> UsuarioCadastrado:
         """Autentica um monitor ou administrador.
         Recebe matrícula e senha.
         Retorna o usuário autenticado.
         Lança CredenciaisInvalidas se o login falhar.
         """
         if not isinstance(matricula, str) or not isinstance(senha, str) or not matricula.strip() or not senha:
-            raise CredenciaisInvalidas("Matrícula ou senha inválida")
+            raise CredenciaisInvalidas("Matrícula ou senha inválida.")
         matricula = matricula.strip()
 
         credenciais = self._repositorio.buscar_credenciais(matricula)
@@ -91,28 +147,132 @@ class CadastroMonitorias:
 
         return None
 
-    def cadastrar_presencial(self, matricula: str, codigo: str, dia: str, inicio: str, fim: str, predio: str, sala: str) -> Atendimento:
+    def cadastrar_presencial(self, usuario: Usuario, codigo: str, dia: str, inicio: str, fim: str, predio: str, sala: str) -> Atendimento:
+        """Cria e cadastra um atendimento presencial no vínculo do monitor.
+            Recebe: matrícula, código da disciplina, dia, horários, predio e sala.
+            Retorna: o AtendimentoPresencial cadastrado.
+            Lança DadosInvalidos, MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
+            VinculoInexistente ou ConflitoDeHorario."""
+
+        atendimento = AtendimentoPresencial(dia, inicio, fim, predio, sala)
+
+        return self._cadastrar_atendimento(usuario, codigo, atendimento)
+
+
+    def cadastrar_online(self, usuario: Usuario, codigo: str, dia: str, inicio: str, fim: str, plataforma: str, link: str) -> Atendimento:
         """Cria e cadastra um atendimento online no vínculo do monitor.
             Recebe: matrícula, código da disciplina, dia, horários, plataforma e link.
             Retorna: o AtendimentoOnline cadastrado.
             Lança DadosInvalidos, MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
             VinculoInexistente ou ConflitoDeHorario."""
 
-        atendimento = AtendimentoPresencial(dia, inicio, fim, predio, sala)
-
-        return self._cadastrar_atendimento(matricula, codigo, atendimento)
-
-
-    def cadastrar_online(self, matricula: str, codigo: str, dia: str, inicio: str, fim: str, plataforma: str, link: str) -> Atendimento:
-        """Cria e cadastra um atendimento presencial no vínculo do monitor.
-            Recebe: matrícula, código da disciplina, dia, horários, prédio e sala.
-            Retorna: o AtendimentoPresencial cadastrado.
-            Lança DadosInvalidos, MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
-            VinculoInexistente ou ConflitoDeHorario."""
-
         atendimento = AtendimentoOnline(dia, inicio, fim, plataforma, link)
 
-        return self._cadastrar_atendimento(matricula, codigo, atendimento)
+        return self._cadastrar_atendimento(usuario, codigo, atendimento)
+
+
+
+    def listar_meus_atendimentos(self, usuario: Usuario) -> tuple[tuple[Disciplina, Atendimento], ...]:
+        """Lista os horários do monitor autenticado.
+        Retorna pares (disciplina, atendimento), ordenados por dia e horário.
+        Não altera nenhum dado no banco.
+        """
+
+        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.VISUALIZAR_HORARIOS)):
+            raise PermissaoNegada(
+                "Usuário sem permissão para visualizar horários.")
+
+        monitor = self._buscar_monitor(usuario.matricula)
+        vinculos = self._repositorio.vinculos_do_monitor(monitor.matricula)
+
+        itens = []
+        for vinculo in vinculos:
+            for atendimento in vinculo.atendimentos:
+                itens.append((vinculo.disciplina, atendimento))
+
+        return tuple(sorted(itens, key=lambda item: (DIAS_VALIDOS.index(item[1].dia),item[1].inicio,item[1].id)))
+
+
+
+    def alterar_horario(self, usuario: Usuario, id_atendimento: int, dia: str, inicio: str, fim: str) -> Atendimento:
+        """Altera o dia e os horários de um atendimento próprio.
+        Mantém ID, disciplina, modalidade e local.
+        Verifica permissões, titularidade e conflitos.
+        Não modifica o banco em caso de rejeição.
+        """
+
+        # Verifica a permissão do usuário
+        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.ALTERAR_HORARIO)):
+            raise PermissaoNegada("Usuário sem permissão para alterar horários.")
+
+        # Valida o ID informado
+        if type(id_atendimento) is not int or id_atendimento <= 0:
+            raise DadosInvalidos("O ID do atendimento deve ser um inteiro positivo.")
+
+        # Busca o atendimento original pelo ID
+        registro = self._repositorio.buscar_atendimento(id_atendimento)
+
+        if registro is None:
+            raise AtendimentoInexistente(id_atendimento)
+
+        vinculo, antigo = registro
+        # Confere se o atendimento pertence ao monitor
+        if vinculo.monitor.matricula != usuario.matricula:
+            raise PermissaoNegada("O atendimento pertence a outro monitor.")
+
+        # Cria um novo objeto com o dia e os horários informados(A modalidade e o local são mantidos)
+
+        if antigo.modalidade() == "presencial":
+            novo = AtendimentoPresencial(dia, inicio, fim, antigo.predio, antigo.sala)
+        else:
+            novo = AtendimentoOnline(dia, inicio, fim, antigo.plataforma, antigo.link)
+
+        # Procura conflitos, ignorando o próprio atendimento
+        conflito = self.encontrar_conflito(usuario.matricula, novo, ignorar_id=id_atendimento)
+
+        if conflito is not None:
+            vinculo_conflitante, existente = conflito
+            raise ConflitoDeHorario(vinculo_conflitante,existente)
+
+        # Atualiza o atendimento no SQLite
+        with self._repositorio.transacao():
+            atualizado = self._repositorio.atualizar_atendimento(id_atendimento, novo)
+
+        return atualizado
+
+
+    def remover_atendimento(self, usuario: Usuario, id_atendimento: int) -> None:
+        """Remove um atendimento do monitor autenticado.
+        Verifica permissão, existência e titularidade.
+        Não modifica o banco em caso de rejeição.
+        """
+
+        # Verifica a permissão do usuário
+        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.REMOVER_ATENDIMENTO)):
+            raise PermissaoNegada("Usuário sem permissão para remover horários.")
+
+        # Valida o ID informado
+        if type(id_atendimento) is not int or id_atendimento <= 0:
+            raise DadosInvalidos("O ID do atendimento deve ser um inteiro positivo.")
+
+        # Busca o atendimento no repositório
+        registro = self._repositorio.buscar_atendimento(id_atendimento)
+
+        if registro is None:
+            raise AtendimentoInexistente(id_atendimento)
+
+        vinculo, atendimento = registro
+
+        # Confere se o atendimento pertence ao monitor
+        if vinculo.monitor.matricula != usuario.matricula:
+            raise PermissaoNegada("O atendimento pertence a outro monitor.")
+
+        # Remove o atendimento do SQLite
+        with self._repositorio.transacao():
+            removido = self._repositorio.excluir_atendimento(id_atendimento)
+
+            if not removido:
+                raise AtendimentoInexistente(id_atendimento)
 
 
     def consultar_monitorias(self, codigo: str, modalidade: str | None = None, dia: str | None = None) -> ResultadoConsulta:
@@ -131,8 +291,7 @@ class CadastroMonitorias:
         filtro_dia = self._normalizar_dia(dia)
         disciplina = self._buscar_disciplina(codigo.strip())
 
-        vinculos = [v for v in self._vinculos.values()
-                    if v.disciplina.codigo == disciplina.codigo]
+        vinculos = self._repositorio.vinculos_da_disciplina(disciplina.codigo)
         if not vinculos:
             return ResultadoConsulta(
                 disciplina, SituacaoConsulta.NENHUMA_MONITORIA_CADASTRADA, (), filtro, filtro_dia)
@@ -184,27 +343,38 @@ class CadastroMonitorias:
         
         return disciplina
 
-    def _cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
+    def _cadastrar_atendimento(self, usuario: Usuario, codigo: str, atendimento: Atendimento) -> Atendimento:
         """Valida o vínculo e os conflitos antes de gravar
         o atendimento no repositório SQLite.
         Retorna o atendimento cadastrado, já com seu ID.
         Não altera o banco em caso de rejeição.
         """
         
+        # Verifica se o usuário é um monitor autorizado
+        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.CADASTRAR_HORARIO)):
+            raise PermissaoNegada("Usuário sem permissão para cadastrar horários.")
+
+        matricula = usuario.matricula
+
+        # Valida e busca os dados necessários
         codigo = validar_codigo(codigo)
         monitor = self._buscar_monitor(matricula)
         disciplina = self._buscar_disciplina(codigo)
 
-        vinculo = self._repositorio.buscar_vinculo(monitor.matricula, disciplina.codigo) # Retorna Vinculo ou None
+        # Verifica o vínculo com a disciplina
+        vinculo = self._repositorio.buscar_vinculo(monitor.matricula, disciplina.codigo)
 
         if vinculo is None:
             raise VinculoInexistente(monitor.matricula, disciplina.codigo)
+
+        # Verifica conflitos de horário
         conflito = self.encontrar_conflito(monitor.matricula, atendimento)
 
         if conflito is not None:
             vinculo_conflitante, existente = conflito
             raise ConflitoDeHorario(vinculo_conflitante, existente)
-        
+
+        # Grava no SQLite
         with self._repositorio.transacao():
             cadastrado = self._repositorio.inserir_atendimento(monitor.matricula, disciplina.codigo, atendimento)
 
