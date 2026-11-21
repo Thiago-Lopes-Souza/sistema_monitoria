@@ -5,7 +5,7 @@ from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
 from monitorias.dominio.atendimento import Atendimento
 from monitorias.dominio.consulta import ItemConsulta, ResultadoConsulta, SituacaoConsulta
-from monitorias.dominio.horario import validar_codigo
+from monitorias.dominio.horario import validar_codigo, validar_dia
 from monitorias.dominio.excecoes import (ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente)
 
 
@@ -99,48 +99,64 @@ class CadastroMonitorias:
             raise DisciplinaForaDoEscopo(codigo)
         return disciplina
     
-    def consultar_monitorias(self, codigo: str, modalidade: str | None = None) -> ResultadoConsulta:
+    def consultar_monitorias(self, codigo: str, modalidade: str | None = None,
+                             dia: str | None = None) -> ResultadoConsulta:
         """F2: consulta monitores e horários de uma disciplina (só leitura).
-          Recebe o código (AAA999, maiúsculas ou minúsculas) e a modalidade
-          opcional ("presencial", "online" ou vazio para todas).
+          Recebe o código (AAA999, maiúsculas ou minúsculas) e, opcionalmente, a
+          modalidade ("presencial" ou "online") e o dia da semana. Vazio ou None
+          significa sem filtro; com os dois, vale a combinação.
           Devolve um ResultadoConsulta com uma das quatro situações.
-          Lança DadosInvalidos (código mal formatado ou modalidade desconhecida)
-          e DisciplinaForaDoEscopo (código fora do catálogo).
+          Lança DadosInvalidos (código mal formatado, modalidade ou dia
+          desconhecidos) e DisciplinaForaDoEscopo (código fora do catálogo).
           Não altera nenhum dado, nem quando rejeita."""
         if not isinstance(codigo, str):
             raise DadosInvalidos("O código da disciplina deve ser um texto.")
         filtro = self._normalizar_modalidade(modalidade)
+        filtro_dia = self._normalizar_dia(dia)
         disciplina = self._buscar_disciplina(codigo.strip())
 
         vinculos = [v for v in self._vinculos.values()
                     if v.disciplina.codigo == disciplina.codigo]
         if not vinculos:
             return ResultadoConsulta(
-                disciplina, SituacaoConsulta.NENHUMA_MONITORIA_CADASTRADA, (), filtro)
+                disciplina, SituacaoConsulta.NENHUMA_MONITORIA_CADASTRADA, (), filtro, filtro_dia)
 
         if all(len(v.atendimentos) == 0 for v in vinculos):
             sem_horario = tuple(ItemConsulta(v.monitor, ()) for v in vinculos)
             return ResultadoConsulta(
-                disciplina, SituacaoConsulta.MONITOR_SEM_HORARIOS, sem_horario, filtro)
+                disciplina, SituacaoConsulta.MONITOR_SEM_HORARIOS, sem_horario, filtro, filtro_dia)
 
+        com_filtro = filtro is not None or filtro_dia is not None
         itens = []
         for v in vinculos:
             horarios = tuple(a for a in v.atendimentos
-                             if filtro is None or a.modalidade() == filtro)
-            # Sem filtro, todo monitor vinculado aparece, mesmo sem horário
-            # (o aluno vê o e-mail); com filtro, só quem tem horário na modalidade.
-            if horarios or filtro is None:
+                             if (filtro is None or a.modalidade() == filtro)
+                             and (filtro_dia is None or a.dia == filtro_dia))
+            # Sem filtro, aparece todo monitor vinculado; com filtro, só quem tem horário que combine.
+            if horarios or not com_filtro:
                 itens.append(ItemConsulta(v.monitor, horarios))
 
         if not itens:
             return ResultadoConsulta(
-                disciplina, SituacaoConsulta.SEM_HORARIOS_NA_MODALIDADE, (), filtro)
+                disciplina, SituacaoConsulta.SEM_HORARIOS_NA_MODALIDADE, (), filtro, filtro_dia)
         return ResultadoConsulta(
-            disciplina, SituacaoConsulta.COM_HORARIOS, tuple(itens), filtro)
+            disciplina, SituacaoConsulta.COM_HORARIOS, tuple(itens), filtro, filtro_dia)
 
     def listar_disciplinas(self) -> tuple[Disciplina, ...]:
         """Lista as disciplinas do catálogo, ordenadas pelo código."""
         return tuple(sorted(self._disciplinas.values(), key=lambda d: d.codigo))
+
+    @staticmethod
+    def _normalizar_dia(dia: str | None) -> str | None:
+        """Devolve None (todos os dias) ou o dia validado, em minúsculas.
+          Lança DadosInvalidos para texto que não seja um dia de segunda a sábado."""
+        if dia is None:
+            return None
+        if not isinstance(dia, str):
+            raise DadosInvalidos("O dia deve ser um texto.")
+        if dia.strip() == "":
+            return None
+        return validar_dia(dia)
 
     @staticmethod
     def _normalizar_modalidade(modalidade: str | None) -> str | None:

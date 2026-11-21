@@ -31,10 +31,12 @@ class ItemConsulta:
 class ResultadoConsulta:
     """Retorno de CadastroMonitorias.consultar_monitorias.
 
-    modalidade é "presencial", "online" ou None (todas).
+    modalidade é "presencial", "online" ou None (todas); dia é um dia de
+    segunda a sábado ou None (todos).
     """
 
     disciplina: Disciplina
     situacao: SituacaoConsulta
     itens: tuple[ItemConsulta, ...]
     modalidade: str | None
+    dia: str | None = None
