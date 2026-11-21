@@ -3,7 +3,7 @@
 from monitorias.dominio.disciplina import Disciplina
 from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
-from monitorias.dominio.atendimento import Atendimento
+from monitorias.dominio.atendimento import Atendimento, AtendimentoOnline, AtendimentoPresencial
 from monitorias.dominio.consulta import ItemConsulta, ResultadoConsulta, SituacaoConsulta
 from monitorias.dominio.horario import validar_codigo, validar_dia
 from monitorias.dominio.excecoes import (ConflitoDeHorario, DadosInvalidos, DisciplinaForaDoEscopo, MatriculaNaoCadastrada, VinculoInexistente)
@@ -60,28 +60,30 @@ class CadastroMonitorias:
                 
         return None
 
-    def cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
-        """Cadastra um atendimento no vínculo do monitor com a disciplina.
-          Lança MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
-          VinculoInexistente ou ConflitoDeHorario."""
-        codigo = validar_codigo(codigo)
-        monitor = self._buscar_monitor(matricula)
-        disciplina = self._buscar_disciplina(codigo)
-        vinculo = self._vinculos.get((monitor.matricula, disciplina.codigo)) # Retorna Vinculo ou None
+    def cadastrar_presencial(self, matricula: str, codigo: str, dia: str, inicio: str, fim: str, predio: str, sala: str) -> Atendimento:
+        """Cria e cadastra um atendimento online no vínculo do monitor.
+            Recebe: matrícula, código da disciplina, dia, horários, plataforma e link.
+            Retorna: o AtendimentoOnline cadastrado.
+            Lança DadosInvalidos, MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
+            VinculoInexistente ou ConflitoDeHorario."""
 
-        if vinculo is None:
-            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
-        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
+        atendimento = AtendimentoPresencial(dia, inicio, fim, predio, sala)
 
-        if conflito is not None:
-            vinculo_conflitante, existente = conflito
-            raise ConflitoDeHorario(vinculo_conflitante, existente)
-        
-        vinculo.adicionar_atendimento(atendimento)
-        return atendimento
+        return self._cadastrar_atendimento(matricula, codigo, atendimento)
+
+
+    def cadastrar_online(self, matricula: str, codigo: str, dia: str, inicio: str, fim: str, plataforma: str, link: str) -> Atendimento:
+        """Cria e cadastra um atendimento presencial no vínculo do monitor.
+            Recebe: matrícula, código da disciplina, dia, horários, prédio e sala.
+            Retorna: o AtendimentoPresencial cadastrado.
+            Lança DadosInvalidos, MatriculaNaoCadastrada, DisciplinaForaDoEscopo,
+            VinculoInexistente ou ConflitoDeHorario."""
+
+        atendimento = AtendimentoOnline(dia, inicio, fim, plataforma, link)
+
+        return self._cadastrar_atendimento(matricula, codigo, atendimento)
     
-
-    # -- AUXILIARES --
+    # =============================  AUXILIARES  ===========================================================
     
     def _buscar_monitor(self, matricula: str) -> Monitor:
         """Retorna o monitor ou lança MatriculaNaoCadastrada."""
@@ -98,7 +100,32 @@ class CadastroMonitorias:
         if disciplina is None:
             raise DisciplinaForaDoEscopo(codigo)
         return disciplina
-    
+
+    def _cadastrar_atendimento(self, matricula: str, codigo: str, atendimento: Atendimento) -> Atendimento:
+        """Valida o vínculo e os conflitos antes de cadastrar o atendimento.
+            Retorna o atendimento cadastrado.
+            Lança exceções de cadastro inválido ou ConflitoDeHorario.
+            Não modifica os registros em caso de rejeição."""
+        
+        codigo = validar_codigo(codigo)
+        monitor = self._buscar_monitor(matricula)
+        disciplina = self._buscar_disciplina(codigo)
+
+        vinculo = self._vinculos.get((monitor.matricula, disciplina.codigo)) # Retorna Vinculo ou None
+
+        if vinculo is None:
+            raise VinculoInexistente(monitor.matricula, disciplina.codigo)
+        conflito = self.encontrar_conflito(monitor.matricula, atendimento)
+
+        if conflito is not None:
+            vinculo_conflitante, existente = conflito
+            raise ConflitoDeHorario(vinculo_conflitante, existente)
+        
+        vinculo._adicionar_atendimento(atendimento)
+        return atendimento
+
+    # ======================================================================================================   
+
     def consultar_monitorias(self, codigo: str, modalidade: str | None = None,
                              dia: str | None = None) -> ResultadoConsulta:
         """F2: consulta monitores e horários de uma disciplina (só leitura).
