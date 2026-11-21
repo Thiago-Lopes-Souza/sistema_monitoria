@@ -304,9 +304,10 @@ class CadastroMonitorias:
         com_filtro = filtro is not None or filtro_dia is not None
         itens = []
         for v in vinculos:
-            horarios = tuple(a for a in v.atendimentos
-                             if (filtro is None or a.modalidade() == filtro)
-                             and (filtro_dia is None or a.dia == filtro_dia))
+            horarios = tuple(sorted((a for a in v.atendimentos
+                if (filtro is None or a.modalidade() == filtro)
+                and (filtro_dia is None or a.dia == filtro_dia)), key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio, a.id)))
+            
             # Sem filtro, aparece todo monitor vinculado; com filtro, só quem tem horário que combine.
             if horarios or not com_filtro:
                 itens.append(ItemConsulta(v.monitor, horarios))

@@ -4,7 +4,6 @@ Executar na pasta prototipo_monitoria:
     python -m unittest discover -s tests -p "test_f1.py" -v
 
 A base utilizada é sempre temporária; o banco de demonstração não é alterado.
-Os códigos F1A-01 etc. são identificadores sugeridos para a tabela de verificação.
 """
 
 import tempfile

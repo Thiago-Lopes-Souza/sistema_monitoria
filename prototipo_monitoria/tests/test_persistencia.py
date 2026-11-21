@@ -52,14 +52,13 @@ def contar(conexao, tabela: str) -> int:
 
 
 class BaseEmMemoria(unittest.TestCase):
-    """Base nova em memória para cada teste, já com o esquema."""
+    """Base SQLite em memória, isolada para cada teste."""
 
     def setUp(self):
         self.conexao = abrir_base(EM_MEMORIA)
-        self.repo = RepositorioMonitorias(self.conexao)
+        self.addCleanup(self.conexao.close)
 
-    def tearDown(self):
-        self.conexao.close()
+        self.repo = RepositorioMonitorias(self.conexao)
 
 
 class TestConexaoEEsquema(BaseEmMemoria):
@@ -294,19 +293,20 @@ class TestTransacao(BaseEmMemoria):
 
 
 class TestPersistenciaAposReinicio(unittest.TestCase):
-    """Os dados continuam lá depois de fechar e reabrir a base (arquivo real)."""
+    """Testa a persistência dos dados após fechar e reabrir o banco."""
 
     def setUp(self):
         self.pasta = tempfile.TemporaryDirectory()
-        self.caminho = Path(self.pasta.name) / "teste.db"
+        self.addCleanup(self.pasta.cleanup)
 
-    def tearDown(self):
-        self.pasta.cleanup()
+        self.caminho = Path(self.pasta.name) / "teste.db"
 
     def reabrir(self):
         """Abre a base do arquivo, como o programa faz ao iniciar."""
+
         conexao = abrir_base(self.caminho)
-        self.addCleanup(conexao.close)  # fechar duas vezes não dá erro
+        self.addCleanup(conexao.close)
+
         return conexao, RepositorioMonitorias(conexao)
 
     def test_f1a_persistencia_apos_reinicio(self):
