@@ -41,9 +41,3 @@ class Vinculo:
         CadastroMonitorias depois de todas as verificações.
         """
         return tuple(sorted(self._atendimentos, key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio)))
-
-    # Metodos
-    def _adicionar_atendimento(self, atendimento: Atendimento) -> None:
-        """Acrescenta um atendimento ao vínculo.
-          Só o 'CadastroMonitorias' chama o método após validação."""
-        self._atendimentos.append(atendimento)
