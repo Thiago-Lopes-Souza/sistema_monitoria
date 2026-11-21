@@ -1,4 +1,8 @@
 """Funções auxiliares para gerar e verificar hashes de senhas para autenticação no sistema."""
+"""Para autenticação segura do nosso sistema, aplicamos a utilização de hashes e sal para o armazenamento das senhas no banco de dados.
+  Cada senha de usuários do tipo Monitor e Admin serão enviadas ao banco somente após conversão de texto em bytes pelo
+  algoritmo PBKDF2-HMAC-SHA256, adicionando bytes extras aleatórios (sal) para maior segurança.
+"""
 
 import hashlib
 import hmac
@@ -19,7 +23,7 @@ def gerar_hash_senha(senha: str) -> tuple[bytes, bytes]:
         raise ValueError("A senha deve ser um texto não vazio.")
 
     sal = secrets.token_bytes(TAMANHO_SAL)
-    senha_hash = hashlib.pbkdf2_hmac(ALGORITMO, senha.encode("utf-8"), sal, ITERACOES)
+    senha_hash = hashlib.pbkdf2_hmac(ALGORITMO, senha.encode("utf-8"), sal, ITERACOES,)
 
     return senha_hash, sal
 
@@ -31,6 +35,6 @@ def verificar_senha(senha: str, senha_hash: bytes, sal: bytes) -> bool:
     if not isinstance(senha, str):
         return False
 
-    hash_calculado = hashlib.pbkdf2_hmac(ALGORITMO, senha.encode("utf-8"), sal, ITERACOES)
+    hash_calculado = hashlib.pbkdf2_hmac(ALGORITMO, senha.encode("utf-8"), sal, ITERACOES,)
     
     return hmac.compare_digest(hash_calculado, senha_hash)
