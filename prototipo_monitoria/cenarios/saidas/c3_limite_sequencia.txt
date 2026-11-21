@@ -1,0 +1,75 @@
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Protótipo com dados FICTÍCIOS (nomes, matrículas, e-mails e links).
+Os dados ficam só em memória: o que for cadastrado se perde ao sair.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula do monitor: 2026000002
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 205
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia (1 a 6): 2
+Início (hh:mm): 16:00
+Fim (hh:mm): 18:00
+
+Horário cadastrado: terça 16:00–18:00 | presencial | CAD 3, sala 205 | registrado em 01/11/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 2
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: online)
+  Não há horário cadastrado nessa modalidade.
+  Contato: Ana Fictícia <ana.ficticia@ufmg.br>
+  Contato: Caio Exemplo <caio.exemplo@ufmg.br>
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | registrado em 20/10/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    - terça 16:00–18:00 | presencial | CAD 3, sala 205 | registrado em 01/11/2026
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): ELT001
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+
+ELT001 — Circuitos Elétricos I (modalidade: todas)
+  Nenhuma monitoria cadastrada no sistema para esta disciplina.
+  Atenção: a ausência no sistema não garante que não exista monitoria; confirme com o departamento que oferta a disciplina.
+
+--- Menu principal ---
+1 - Consultar monitorias de uma disciplina (aluno)
+2 - Cadastrar horário de atendimento (monitor)
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. Os dados cadastrados nesta execução foram descartados.
