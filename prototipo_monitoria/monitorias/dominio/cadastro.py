@@ -1,5 +1,8 @@
 """CadastroMonitorias: ponto único de entrada do domínio (F1, F2 e preparação dos dados)."""
 
+from datetime import date
+from typing import Callable
+
 from monitorias.dominio.disciplina import Disciplina
 from monitorias.dominio.monitor import Monitor
 from monitorias.dominio.vinculo import Vinculo
@@ -18,9 +21,17 @@ from monitorias.dominio.usuario import UsuarioCadastrado, Usuario, Operacao
 class CadastroMonitorias:
     """Ponto de entrada do domínio: coordena as funcionalidades sobre o repositório."""
 
-    def __init__(self, repositorio: RepositorioMonitorias):
-        """Recebe o repositório que persiste os dados."""
+    def __init__(self, repositorio: RepositorioMonitorias,
+                 hoje: Callable[[], date] = date.today):
+        """Recebe o repositório que persiste os dados.
+
+        hoje: função que informa a data gravada em registrado_em quando um horário
+        é cadastrado (F1a) ou alterado (F1c). O padrão é a data do dia. A carga
+        fictícia e os testes passam uma data fixa, para as saídas serem
+        reproduzíveis sem gravar nada por fora do cadastro.
+        """
         self._repositorio = repositorio
+        self._hoje = hoje
 
     def cadastrar_disciplina(self,usuario: Usuario,codigo: str,nome: str) -> Disciplina:
         """A1: cadastra uma disciplina (só administrador)."""
@@ -132,7 +143,7 @@ class CadastroMonitorias:
         """F1a: cadastra um atendimento presencial no vínculo do monitor autenticado.
         Lança PermissaoNegada, DadosInvalidos, DisciplinaForaDoEscopo,
         VinculoInexistente ou ConflitoDeHorario."""
-        atendimento = AtendimentoPresencial(dia, inicio, fim, predio, sala)
+        atendimento = AtendimentoPresencial(dia, inicio, fim, predio, sala, self._hoje())
 
         return self._cadastrar_atendimento(usuario, codigo, atendimento)
 
@@ -140,7 +151,7 @@ class CadastroMonitorias:
         """F1a: cadastra um atendimento online no vínculo do monitor autenticado.
         Lança PermissaoNegada, DadosInvalidos, DisciplinaForaDoEscopo,
         VinculoInexistente ou ConflitoDeHorario."""
-        atendimento = AtendimentoOnline(dia, inicio, fim, plataforma, link)
+        atendimento = AtendimentoOnline(dia, inicio, fim, plataforma, link, self._hoje())
 
         return self._cadastrar_atendimento(usuario, codigo, atendimento)
 
@@ -178,9 +189,9 @@ class CadastroMonitorias:
             raise PermissaoNegada("O atendimento pertence a outro monitor.")
 
         if antigo.modalidade() == "presencial":
-            novo = AtendimentoPresencial(dia, inicio, fim, antigo.predio, antigo.sala)
+            novo = AtendimentoPresencial(dia, inicio, fim, antigo.predio, antigo.sala, self._hoje())
         else:
-            novo = AtendimentoOnline(dia, inicio, fim, antigo.plataforma, antigo.link)
+            novo = AtendimentoOnline(dia, inicio, fim, antigo.plataforma, antigo.link, self._hoje())
 
         conflito = self.encontrar_conflito(usuario.matricula, novo, ignorar_id=id_atendimento)
 

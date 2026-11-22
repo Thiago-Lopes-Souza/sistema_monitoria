@@ -20,7 +20,7 @@ próprias, em `:memory:` ou em arquivo temporário, montadas no `setUp`.
 
 **Coluna Evidência:** o arquivo da saída real do terminal, e o teste automático que verifica
 a mesma regra, pelo nome que aparece em `cenarios/saidas/unittest.txt`. A numeração dos
-cenários de terminal é própria (veja a pendência 3).
+cenários de terminal é própria (veja a pendência 2).
 
 ## Estado inicial de todos os cenários (carga fictícia)
 
@@ -177,33 +177,42 @@ completa em `prototipo_monitoria/cenarios/saidas/unittest.txt`.
 
 Nenhum dos 37 cenários de terminal divergiu do resultado esperado.
 
+## Decisões tomadas a partir das pendências
+
+As três decisões seguem o que o grupo já tinha entregue à professora no plano do produto final.
+
+1. **`registrado_em` na F1c:** passa a ser a data da alteração. O plano diz que cada horário
+   mostra "a data do último cadastro ou alteração", para o aluno avaliar se a informação está
+   atualizada. O código já fazia isso.
+2. **Exceção de autorização:** fica `PermissaoNegada`, o nome já usado no código e nos
+   testes. `AcessoNegado` só aparecia no guia interno do grupo, não em material entregue.
+3. **Carga fictícia e preparação dos testes passam pelo cadastro.** O plano diz que "a carga
+   de dados fictícios e os testes também passam pelas operações do cadastro", em resposta ao
+   comentário da professora sobre o protótipo. O código foi ajustado:
+   - `CadastroMonitorias` recebe um parâmetro opcional `hoje` (função que informa a data de
+     registro; padrão `date.today`). `CadastroMonitorias(repositorio)` continua valendo;
+   - `seed_demo.py` grava monitores, disciplinas, vínculos e horários por `cadastrar_monitor`,
+     `cadastrar_disciplina`, `vincular` e `cadastrar_presencial`/`cadastrar_online`, com a
+     data fixa 20/10/2026. Como `test_F1.py`, `test_admin.py`, `test_desvincular.py` e
+     `test_integracao.py` preparam os dados com `carregar_demo()`, eles passam a usar o
+     cadastro também;
+   - os `setUp` de `test_consultar_monitorias.py` e de `test_entrar.py` foram reescritos com
+     as operações do cadastro;
+   - a única gravação direta que resta, fora de `test_persistencia.py` (que testa o próprio
+     repositório), é a do primeiro administrador: nenhuma operação do sistema cadastra
+     administradores.
+
+   Reexecução: 222 testes OK; os 37 cenários geraram saídas idênticas às anteriores, porque
+   os dados, a ordem de gravação e a data fixa são os mesmos.
+
 ## Pendências
 
-1. **Tag `v1.0-final`:** não criada. Fica para depois do merge na `main` e das decisões do
-   grupo (item 2).
-2. **Decisões do grupo registradas no código:**
-   - `registrado_em` passa a ser a data da alteração na F1c, como o guia sugeria;
-   - F1b devolve pares `(Disciplina, Atendimento)`;
-   - a exceção de autorização é `PermissaoNegada` (o guia dizia `AcessoNegado`).
-3. **Numeração dos cenários de terminal × testes:** os IDs dos cenários de terminal (por
+1. **Tag `v1.0-final`:** criar no commit que for para a entrega, depois do merge na `main`.
+2. **Numeração dos cenários de terminal × testes:** os IDs dos cenários de terminal (por
    exemplo F1C-02) não coincidem com os números dos testes da mesma regra (por exemplo
    `test_f1c_07_outro_monitor_nao_pode_alterar`). Cada linha da tabela aponta o teste pelo
    nome completo.
-4. **A carga fictícia grava pelo repositório, não por `cadastrar_*`.** O guia pedia que ela
-   passasse pelo cadastro. Os dados são validados pelos construtores e gravados numa única
-   transação, e a data fixa (20/10/2026) mantém as saídas reproduzíveis. O `setUp` de vários
-   testes também prepara os dados direto pelo repositório:
-   - `test_desvincular.py`, `test_F1.py`, `test_admin.py` e `test_integracao.py` chamam
-     `carregar_demo()`, que grava usuários, disciplinas, vínculos e atendimentos pelo
-     repositório;
-   - `test_entrar.py` grava o monitor e o administrador com `inserir_monitor` e
-     `inserir_administrador`;
-   - `test_consultar_monitorias.py` grava monitores, disciplinas, vínculos e atendimentos com
-     os métodos `inserir_*`.
-
-   Em `test_persistencia.py` gravar pelo repositório é o próprio objeto do teste. Nos demais,
-   é preparação de dados conhecidos e não substitui as operações testadas.
-5. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
+3. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
    uma segunda consulta, só de leitura, para mostrar os e-mails.
 
 ## Limitações conhecidas
@@ -223,7 +232,7 @@ Nenhum dos 37 cenários de terminal divergiu do resultado esperado.
 | Leitura da senha com `isatty` (getpass só no terminal) | `prototipo_monitoria/monitorias/menu.py`, `ler_senha()`, linhas 63–77 |
 | Ponto único `try/except ErroMonitorias` | `prototipo_monitoria/monitorias/menu.py`, `_executar_acao()`, linhas 357–371; `executar()` (linhas 395–415), com `EOFError`/`KeyboardInterrupt` na linha 413 |
 | Submenu montado por `opcoes_menu()`, sem `isinstance` | `prototipo_monitoria/monitorias/menu.py`, `ACOES_DA_SESSAO` (linha 325), `opcoes_da_sessao()` (338–344) e `entrar()` (374–392) |
-| Autorização polimórfica no cadastro | `prototipo_monitoria/monitorias/dominio/cadastro.py`, `_exigir_permissao()`, linhas 263–273 |
+| Autorização polimórfica no cadastro | `prototipo_monitoria/monitorias/dominio/cadastro.py`, `_exigir_permissao()`, linhas 274–284 |
 | Ponto de entrada que não cria dados | `prototipo_monitoria/monitorias/__main__.py`, `iniciar()`, linhas 22–52 |
 
 ## Conferência do ZIP

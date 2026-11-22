@@ -36,16 +36,16 @@ class TestEntrar(unittest.TestCase):
             "2026900001", "Admin", "admin@ufmg.br"
         )
 
+        # Só o administrador é gravado pelo repositório: nenhuma operação do
+        # sistema cadastra administradores. O monitor entra pelo A2.
         with self.repositorio.transacao():
-            self.repositorio.inserir_monitor(
-                monitor,
-                *senha.gerar_hash_senha("ana123")
-            )
-
             self.repositorio.inserir_administrador(
                 administrador,
                 *senha.gerar_hash_senha("admin123")
             )
+        admin = self.repositorio.buscar_usuario(administrador.matricula)
+        self.cadastro.cadastrar_monitor(
+            admin, monitor.matricula, monitor.nome, monitor.email, "ana123")
 
     def test_s1_01_login_monitor_valido(self):
         usuario = self.cadastro.entrar(

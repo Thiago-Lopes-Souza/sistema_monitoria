@@ -95,10 +95,11 @@ continuam como no protótipo, então os cenários C1 a C3 continuam valendo. MAT
 8. **A carga verifica se a base está vazia, em vez de só usar `INSERT OR IGNORE`.** O
    `INSERT OR IGNORE` não impede horários duplicados, porque o id é gerado pela base, e
    ainda faria voltar um horário de demonstração que o monitor tivesse removido.
-9. **A carga grava pelo repositório, e não pelo cadastro.** O primeiro administrador
-   não pode ser criado pelo cadastro, que exige um administrador para cadastrar
-   usuários. Os objetos ainda passam pelos construtores (validação) e um teste confere
-   que os horários da carga não se sobrepõem.
+9. **A carga passa pelo cadastro.** Ela usa as mesmas operações do uso normal (A2, A1, A3
+   e F1a), com as mesmas validações e checagens de conflito. A única gravação direta pelo
+   repositório é a do primeiro administrador: nenhuma operação cadastra administradores,
+   e sem um deles não há quem execute A1–A3. Os horários recebem a data fixa de
+   demonstração, informada ao cadastro pelo parâmetro `hoje`.
 10. **SQL só com placeholders `?`.** Um teste confere que `x' OR '1'='1` não encontra nada.
 
 ## Contrato do repositório (para B e C)

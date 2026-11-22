@@ -7,93 +7,85 @@ Cada teste utiliza sua própria base SQLite em memória.
 
 import dataclasses
 import unittest
+from unittest import mock
 from datetime import date
 
-from monitorias.dominio.atendimento import AtendimentoOnline, AtendimentoPresencial
 from monitorias.dominio.cadastro import CadastroMonitorias
 from monitorias.dominio.consulta import SituacaoConsulta
 from monitorias.dominio.disciplina import Disciplina
 from monitorias.dominio.excecoes import DadosInvalidos, DisciplinaForaDoEscopo
+from monitorias.dominio import senha
 from monitorias.dominio.monitor import Monitor
+from monitorias.dominio.usuario import Administrador
 from monitorias.persistencia.conexao import EM_MEMORIA, abrir_base
 from monitorias.persistencia.repositorio import RepositorioMonitorias
 
 
 DATA = date(2026, 10, 1)
-HASH_TESTE = b"hash-ficticio"
-SAL_TESTE = b"sal-ficticio"
 
 
 class TestConsultarMonitorias(unittest.TestCase):
     """F2: cenário independente com cinco monitores e quatro disciplinas."""
 
     def setUp(self):
+        # Reduz as iterações do hash só nos testes, para acelerar a preparação.
+        alteracao = mock.patch.object(senha, "ITERACOES", 1000)
+        alteracao.start()
+        self.addCleanup(alteracao.stop)
+
         self.conexao = abrir_base(EM_MEMORIA)
         self.addCleanup(self.conexao.close)
         self.repo = RepositorioMonitorias(self.conexao)
-        self.cadastro = CadastroMonitorias(self.repo)
+        self.cadastro = CadastroMonitorias(self.repo, hoje=lambda: DATA)
 
-        # A F2 é pública; não requer autenticação. Para preparar o cenário,
-        # gravamos diretamente pela API pública do repositório em transação.
+        # Os dados passam pelas operações do cadastro (A1, A2, A3 e F1a), com as
+        # mesmas validações do uso normal. Só o administrador é gravado pelo
+        # repositório, porque nenhuma operação cadastra administradores.
         with self.repo.transacao():
-            for codigo, nome in (
-                ("AAA111", "Disciplina A"),
-                ("BBB222", "Disciplina B"),
-                ("CCC333", "Disciplina C"),
-                ("DDD444", "Disciplina D"),
-            ):
-                self.repo.inserir_disciplina(Disciplina(codigo, nome))
+            self.repo.inserir_administrador(
+                Administrador("9", "Admin Teste", "admin.teste@ufmg.br"),
+                *senha.gerar_hash_senha("admin123"))
+        admin = self.repo.buscar_usuario("9")
 
-            for matricula, nome, email in (
-                ("1", "Bia Teste", "bia.teste@ufmg.br"),
-                ("2", "Davi Teste", "davi.teste@ufmg.br"),
-                ("3", "Eva Teste", "eva.teste@ufmg.br"),
-                ("4", "Fabio Teste", "fabio.teste@ufmg.br"),
-                ("5", "Gabi Teste", "gabi.teste@ufmg.br"),
-            ):
-                self.repo.inserir_monitor(
-                    Monitor(matricula, nome, email), HASH_TESTE, SAL_TESTE
-                )
+        for codigo, nome in (
+            ("AAA111", "Disciplina A"),
+            ("BBB222", "Disciplina B"),
+            ("CCC333", "Disciplina C"),
+            ("DDD444", "Disciplina D"),
+        ):
+            self.cadastro.cadastrar_disciplina(admin, codigo, nome)
 
-            for matricula, codigo in (
-                ("1", "AAA111"),
-                ("2", "AAA111"),
-                ("3", "BBB222"),
-                ("4", "CCC333"),
-                ("5", "CCC333"),
-            ):
-                self.repo.inserir_vinculo(matricula, codigo)
+        for matricula, nome, email in (
+            ("1", "Bia Teste", "bia.teste@ufmg.br"),
+            ("2", "Davi Teste", "davi.teste@ufmg.br"),
+            ("3", "Eva Teste", "eva.teste@ufmg.br"),
+            ("4", "Fabio Teste", "fabio.teste@ufmg.br"),
+            ("5", "Gabi Teste", "gabi.teste@ufmg.br"),
+        ):
+            self.cadastro.cadastrar_monitor(admin, matricula, nome, email, "senha123")
 
-            # A quinta é gravada ANTES da terça, intencionalmente.
-            # A F2 deve apresentar os horários em ordem semanal, não por ID.
-            self.h_bia_quinta = self.repo.inserir_atendimento(
-                "1", "AAA111",
-                AtendimentoPresencial(
-                    "quinta", "14:00", "16:00", "Predio X", "10",
-                    registrado_em=DATA,
-                ),
-            )
-            self.h_bia_terca = self.repo.inserir_atendimento(
-                "1", "AAA111",
-                AtendimentoOnline(
-                    "terça", "09:00", "10:00", "Meet",
-                    "https://meet.exemplo/bia", registrado_em=DATA,
-                ),
-            )
-            self.h_davi = self.repo.inserir_atendimento(
-                "2", "AAA111",
-                AtendimentoPresencial(
-                    "segunda", "08:00", "10:00", "Predio Y", "20",
-                    registrado_em=DATA,
-                ),
-            )
-            self.h_fabio = self.repo.inserir_atendimento(
-                "4", "CCC333",
-                AtendimentoPresencial(
-                    "sexta", "10:00", "11:00", "Predio Z", "30",
-                    registrado_em=DATA,
-                ),
-            )
+        for matricula, codigo in (
+            ("1", "AAA111"),
+            ("2", "AAA111"),
+            ("3", "BBB222"),
+            ("4", "CCC333"),
+            ("5", "CCC333"),
+        ):
+            self.cadastro.vincular(admin, matricula, codigo)
+
+        bia = self.repo.buscar_usuario("1")
+        davi = self.repo.buscar_usuario("2")
+        fabio = self.repo.buscar_usuario("4")
+        # A quinta é gravada ANTES da terça, intencionalmente.
+        # A F2 deve apresentar os horários em ordem semanal, não por ID.
+        self.h_bia_quinta = self.cadastro.cadastrar_presencial(
+            bia, "AAA111", "quinta", "14:00", "16:00", "Predio X", "10")
+        self.h_bia_terca = self.cadastro.cadastrar_online(
+            bia, "AAA111", "terça", "09:00", "10:00", "Meet", "https://meet.exemplo/bia")
+        self.h_davi = self.cadastro.cadastrar_presencial(
+            davi, "AAA111", "segunda", "08:00", "10:00", "Predio Y", "20")
+        self.h_fabio = self.cadastro.cadastrar_presencial(
+            fabio, "CCC333", "sexta", "10:00", "11:00", "Predio Z", "30")
 
     @staticmethod
     def _ids(atendimentos):
