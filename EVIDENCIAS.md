@@ -179,7 +179,8 @@ Nenhum dos 37 cenários de terminal divergiu do resultado esperado.
 
 ## Pendências
 
-1. **Tag `v1.0-final`:** não criada. Depende do ok do Luiz e do grupo.
+1. **Tag `v1.0-final`:** não criada. Fica para depois do merge na `main` e das decisões do
+   grupo (item 2).
 2. **Decisões do grupo registradas no código:**
    - `registrado_em` passa a ser a data da alteração na F1c, como o guia sugeria;
    - F1b devolve pares `(Disciplina, Atendimento)`;
@@ -190,12 +191,29 @@ Nenhum dos 37 cenários de terminal divergiu do resultado esperado.
    nome completo.
 4. **A carga fictícia grava pelo repositório, não por `cadastrar_*`.** O guia pedia que ela
    passasse pelo cadastro. Os dados são validados pelos construtores e gravados numa única
-   transação, e a data fixa (20/10/2026) mantém as saídas reproduzíveis. O `setUp` de
-   `test_consultar_monitorias.py` também grava direto pelo repositório.
-5. **F1c com ID inexistente** só é recusada depois que o monitor digita o novo dia e horário.
-   A regra fica no cadastro; o menu não consulta o ID antes.
-6. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
+   transação, e a data fixa (20/10/2026) mantém as saídas reproduzíveis. O `setUp` de vários
+   testes também prepara os dados direto pelo repositório:
+   - `test_desvincular.py`, `test_F1.py`, `test_admin.py` e `test_integracao.py` chamam
+     `carregar_demo()`, que grava usuários, disciplinas, vínculos e atendimentos pelo
+     repositório;
+   - `test_entrar.py` grava o monitor e o administrador com `inserir_monitor` e
+     `inserir_administrador`;
+   - `test_consultar_monitorias.py` grava monitores, disciplinas, vínculos e atendimentos com
+     os métodos `inserir_*`.
+
+   Em `test_persistencia.py` gravar pelo repositório é o próprio objeto do teste. Nos demais,
+   é preparação de dados conhecidos e não substitui as operações testadas.
+5. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
    uma segunda consulta, só de leitura, para mostrar os e-mails.
+
+## Limitações conhecidas
+
+- **F1c com ID inexistente:** o menu pede o ID e, em seguida, o novo dia, início e fim. Um ID
+  que não existe (ou que é de outro monitor) só é recusado depois que o monitor digita o novo
+  horário, quando o cadastro executa `alterar_horario`. Nada é gravado, mas o monitor digita
+  dados à toa. O menu não confere o ID antes porque essa verificação é regra do cadastro.
+  Evidência: `saidas/F1C-05_id_e_horario_invalidos.txt` (ID 99) e
+  `saidas/F1C-02_atendimento_de_outro_monitor.txt`.
 
 ## Trechos de código para captura no PDF
 
@@ -210,10 +228,10 @@ Nenhum dos 37 cenários de terminal divergiu do resultado esperado.
 
 ## Conferência do ZIP
 
-Arquivo: `sistema-monitorias-final.zip`, na raiz do repositório e fora do Git. Tem 78 entradas,
-todas dentro de `prototipo_monitoria/`. Não contém `.git`, `__pycache__`, `.db`, `dados/` nem
-`cenarios/saidas/`. Foi extraído numa pasta temporária limpa, e só o README foi seguido, com
-`python` 3.13.5:
+Arquivo: `sistema-monitorias-final.zip`, na raiz do repositório e fora do Git. Tem 117
+entradas, todas dentro de `prototipo_monitoria/`, **incluindo `cenarios/saidas/`** (as 37
+transcrições e o `unittest.txt`). Não contém `.git`, `__pycache__`, `.db` nem `dados/`. Foi
+extraído numa pasta temporária limpa, e só o README foi seguido, com `python` 3.13.5:
 
 | Passo do README | Resultado observado |
 |---|---|
@@ -221,6 +239,7 @@ todas dentro de `prototipo_monitoria/`. Não contém `.git`, `__pycache__`, `.db
 | 2. `python -m monitorias`: F2 de FIS069, login da Duda e F1a em FIS069 quarta 18:00–19:00 online | F2: "Há monitor cadastrado, mas os horários ainda não foram informados."; "Sessão iniciada. Bem-vindo(a), Duda Teste."; "Horário cadastrado (ID 5): quarta 18:00–19:00 \| online …"; a F2 seguinte mostra o horário |
 | 2 de novo, em nova execução | A F2 de FIS069 ainda mostra quarta 18:00–19:00: persistiu |
 | 3. `python -m unittest discover -s tests -v` | "Ran 222 tests … OK" |
+| 4. `python cenarios/rodar_cenarios.py` | Os 37 cenários rodaram; as transcrições geradas são idênticas byte a byte às de `cenarios/saidas/` que vieram no ZIP, e o `unittest.txt` só difere na linha do tempo de execução |
 
-Conclusão: **aprovado**. O programa inicia, as funcionalidades rodam e os testes executam
-seguindo só o README.
+Conclusão: **aprovado**. O programa inicia, as funcionalidades rodam, os testes executam e as
+evidências incluídas se reproduzem, seguindo só o README.
