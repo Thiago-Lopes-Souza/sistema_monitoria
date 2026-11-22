@@ -9,11 +9,19 @@ class Vinculo:
 
     """Liga um monitor a uma disciplina e guarda os atendimentos desse vínculo."""
 
-    def __init__(self, monitor: Monitor, disciplina: Disciplina) -> None:
-        """Cria um vínculo sem atendimentos."""
+    def __init__(self, monitor: Monitor, disciplina: Disciplina,
+                 atendimentos: tuple[Atendimento, ...] = ()) -> None:
+        """Cria um vínculo.
+
+        Recebe:
+            atendimentos: horários que o vínculo já tem. Só o repositório passa
+                este argumento, ao remontar o vínculo a partir da base de dados,
+                onde os horários já foram validados quando foram gravados. Um
+                vínculo novo (vincular) começa vazio.
+        """
         self._monitor = monitor
         self._disciplina = disciplina
-        self._atendimentos: list[Atendimento] = []
+        self._atendimentos: list[Atendimento] = list(atendimentos)
 
     @property
     def monitor(self) -> Monitor:
@@ -29,13 +37,9 @@ class Vinculo:
     def atendimentos(self) -> tuple[Atendimento, ...]:
         """Cópia dos atendimentos, ordenada por dia da semana e início.
 
-        Sem setter: horários só entram por adicionar_atendimento, chamado pelo
-        CadastroMonitorias depois de todas as verificações.
+        Sem setter nem método público de inclusão: um horário novo só é gravado
+        pelo CadastroMonitorias (cadastrar_presencial/cadastrar_online), depois
+        de todas as verificações; o repositório remonta o vínculo com os
+        horários já gravados.
         """
         return tuple(sorted(self._atendimentos, key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio)))
-
-    # Metodos
-    def adicionar_atendimento(self, atendimento: Atendimento) -> None:
-        """Acrescenta um atendimento ao vínculo.
-          Só o 'CadastroMonitorias' chama o método após validação."""
-        self._atendimentos.append(atendimento)

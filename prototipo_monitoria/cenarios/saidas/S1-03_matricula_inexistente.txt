@@ -1,0 +1,24 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026999999
+Senha: ********
+
+Não foi possível concluir: Matrícula ou senha inválida.
+Nenhum dado foi alterado.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.

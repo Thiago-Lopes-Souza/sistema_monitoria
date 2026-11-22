@@ -1,0 +1,23 @@
+2
+2026900001
+admin123
+3
+2026000001
+Outra Ana
+outra.ana@ufmg.br
+x123
+3
+2026000005
+Gil Exemplo
+gil@gmail.com
+gil123
+3
+2026000005
+Gil Exemplo
+gil.exemplo@ufmg.br
+
+0
+2
+2026000005
+gil123
+0

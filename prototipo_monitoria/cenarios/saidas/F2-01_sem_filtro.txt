@@ -1,0 +1,30 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+Dia da semana: Enter = todos, 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas | dia: todos)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | atualizado em 20/10/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.
