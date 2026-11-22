@@ -86,3 +86,17 @@ class RegistroDuplicado(ErroMonitorias):
         self.tipo = tipo
         self.chave = chave
         super().__init__(f"Registro duplicado: já existe {tipo} {chave} no sistema.")
+
+class CredenciaisInvalidas(ErroMonitorias):
+    """Matrícula inexistente ou senha incorreta."""
+
+class PermissaoNegada(ErroMonitorias):
+    """Usuário sem permissão para realizar a operação."""
+
+class AtendimentoInexistente(ErroMonitorias):
+    """O atendimento informado não existe no sistema."""
+
+    def __init__(self, id_atendimento: int):
+        super().__init__(
+            f"Atendimento de ID {id_atendimento} não encontrado."
+        )

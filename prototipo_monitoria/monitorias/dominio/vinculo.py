@@ -37,13 +37,7 @@ class Vinculo:
     def atendimentos(self) -> tuple[Atendimento, ...]:
         """Cópia dos atendimentos, ordenada por dia da semana e início.
 
-        Sem setter: horários só entram por adicionar_atendimento, chamado pelo
+        Sem setter: horários só entram por _adicionar_atendimento, chamado pelo
         CadastroMonitorias depois de todas as verificações.
         """
         return tuple(sorted(self._atendimentos, key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio)))
-
-    # Metodos
-    def adicionar_atendimento(self, atendimento: Atendimento) -> None:
-        """Acrescenta um atendimento ao vínculo.
-          Só o 'CadastroMonitorias' chama o método após validação."""
-        self._atendimentos.append(atendimento)
