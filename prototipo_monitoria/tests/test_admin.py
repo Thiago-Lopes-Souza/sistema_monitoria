@@ -45,7 +45,7 @@ class TestAdministracao(unittest.TestCase):
 
     # ---- Os seis cenários administrativos do protótipo, agora com SQLite. ----
 
-    def test_a1_disciplina_duplicada_e_rejeitada(self):
+    def test_a1_03_disciplina_duplicada_e_rejeitada(self):
         antes = self.repositorio.buscar_disciplina("DCC203")
 
         with self.assertRaises(RegistroDuplicado):
@@ -56,7 +56,7 @@ class TestAdministracao(unittest.TestCase):
         depois = self.repositorio.buscar_disciplina("DCC203")
         self.assertEqual(depois.nome, antes.nome)
 
-    def test_a2_matricula_duplicada_e_rejeitada(self):
+    def test_a2_04_matricula_duplicada_e_rejeitada(self):
         existente = self.repositorio.buscar_usuario("2026000001")
 
         with self.assertRaises(RegistroDuplicado):
@@ -74,7 +74,7 @@ class TestAdministracao(unittest.TestCase):
             "2026000001",
         )
 
-    def test_a3_criar_vinculo_e_persistir(self):
+    def test_a3_01_criar_vinculo_e_persistir(self):
         # Ana está vinculada a DCC203 e MAT002, mas não a MAT001.
         vinculo = self.cadastro.vincular(self.admin, "2026000001", "MAT001")
 
@@ -86,7 +86,7 @@ class TestAdministracao(unittest.TestCase):
         self.assertIsNotNone(gravado)
         self.assertEqual(gravado.disciplina.codigo, "MAT001")
 
-    def test_a3_vinculo_duplicado_e_rejeitado(self):
+    def test_a3_03_vinculo_duplicado_e_rejeitado(self):
         # Ana já está vinculada a DCC203.
         with self.assertRaises(RegistroDuplicado):
             self.cadastro.vincular(self.admin, "2026000001", "dcc203")
@@ -96,7 +96,7 @@ class TestAdministracao(unittest.TestCase):
             sum(v.disciplina.codigo == "DCC203" for v in vinculos), 1
         )
 
-    def test_a3_monitor_nao_cadastrado(self):
+    def test_a3_04_monitor_nao_cadastrado(self):
         with self.assertRaises(MatriculaNaoCadastrada):
             self.cadastro.vincular(self.admin, "2099999999", "DCC203")
 
@@ -104,7 +104,7 @@ class TestAdministracao(unittest.TestCase):
             self.repositorio.buscar_vinculo("2099999999", "DCC203")
         )
 
-    def test_a3_disciplina_fora_do_catalogo(self):
+    def test_a3_05_disciplina_fora_do_catalogo(self):
         with self.assertRaises(DisciplinaForaDoEscopo):
             self.cadastro.vincular(self.admin, "2026000001", "DCC999")
 
@@ -114,7 +114,7 @@ class TestAdministracao(unittest.TestCase):
 
     # ---- Novos testes necessários ao contrato final. ----
 
-    def test_a1_cadastro_valido_persiste_e_normaliza(self):
+    def test_a1_01_cadastro_valido_persiste_e_normaliza(self):
         criada = self.cadastro.cadastrar_disciplina(
             self.admin, " inf123 ", "  Introdução à Computação  "
         )
@@ -126,7 +126,7 @@ class TestAdministracao(unittest.TestCase):
         self.assertIsNotNone(salva)
         self.assertEqual(salva.nome, criada.nome)
 
-    def test_a2_cadastro_valido_persiste_e_permite_login(self):
+    def test_a2_01_cadastro_valido_persiste_e_permite_login(self):
         criado = self.cadastro.cadastrar_monitor(
             self.admin, "2026999999", "  Pedro Teste  ",
             "  PEDRO@UFMG.BR  ", "pedro123",
@@ -151,14 +151,14 @@ class TestAdministracao(unittest.TestCase):
         self.assertNotEqual(hash_senha, b"pedro123")
         self.assertTrue(sal)
 
-    def test_a3_aceita_dados_normalizados(self):
+    def test_a3_02_aceita_dados_normalizados(self):
         vinculo = self.cadastro.vincular(
             self.admin, " 2026000001 ", " mat001 "
         )
         self.assertEqual(vinculo.monitor.matricula, "2026000001")
         self.assertEqual(vinculo.disciplina.codigo, "MAT001")
 
-    def test_a1_codigo_invalido_nao_grava(self):
+    def test_a1_02_codigo_invalido_nao_grava(self):
         antes = self.repositorio.listar_disciplinas()
         with self.assertRaises(DadosInvalidos):
             self.cadastro.cadastrar_disciplina(
@@ -166,35 +166,35 @@ class TestAdministracao(unittest.TestCase):
             )
         self.assertEqual(self.repositorio.listar_disciplinas(), antes)
 
-    def test_a2_email_invalido_nao_grava(self):
+    def test_a2_02_email_invalido_nao_grava(self):
         with self.assertRaises(DadosInvalidos):
             self.cadastro.cadastrar_monitor(
                 self.admin, "2026999999", "Pedro", "pedro@gmail.com", "pedro123"
             )
         self.assertIsNone(self.repositorio.buscar_usuario("2026999999"))
 
-    def test_a2_senha_vazia_nao_grava(self):
+    def test_a2_03_senha_vazia_nao_grava(self):
         with self.assertRaises(DadosInvalidos):
             self.cadastro.cadastrar_monitor(
                 self.admin, "2026999999", "Pedro", "pedro@ufmg.br", ""
             )
         self.assertIsNone(self.repositorio.buscar_usuario("2026999999"))
 
-    def test_a1_monitor_sem_permissao(self):
+    def test_a1_04_monitor_sem_permissao(self):
         with self.assertRaises(PermissaoNegada):
             self.cadastro.cadastrar_disciplina(
                 self.ana, "INF123", "Introdução à Computação"
             )
         self.assertIsNone(self.repositorio.buscar_disciplina("INF123"))
 
-    def test_a2_monitor_sem_permissao(self):
+    def test_a2_05_monitor_sem_permissao(self):
         with self.assertRaises(PermissaoNegada):
             self.cadastro.cadastrar_monitor(
                 self.ana, "2026999999", "Pedro", "pedro@ufmg.br", "pedro123"
             )
         self.assertIsNone(self.repositorio.buscar_usuario("2026999999"))
 
-    def test_a3_monitor_sem_permissao(self):
+    def test_a3_06_monitor_sem_permissao(self):
         with self.assertRaises(PermissaoNegada):
             self.cadastro.vincular(self.ana, "2026000001", "MAT001")
         self.assertIsNone(

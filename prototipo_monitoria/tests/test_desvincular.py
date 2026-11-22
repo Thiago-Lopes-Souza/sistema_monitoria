@@ -134,19 +134,19 @@ class TestDesvincular(unittest.TestCase):
                 self.cadastro.desvincular(self.admin, CAIO, "MAT001")
         self.assertEqual(self._foto(), antes)
 
-    def test_matricula_e_codigo_sao_normalizados(self):
+    def test_a4_11_matricula_e_codigo_sao_normalizados(self):
         removidos = self.cadastro.desvincular(self.admin, f"  {ANA} ", " mat002 ")
         self.assertEqual(removidos, 1)
         self.assertIsNone(self.repositorio.buscar_vinculo(ANA, "MAT002"))
 
-    def test_desvincular_duas_vezes_rejeita_a_segunda(self):
+    def test_a4_12_desvincular_duas_vezes_rejeita_a_segunda(self):
         self.cadastro.desvincular(self.admin, ANA, "MAT002")
         antes = self._foto()
         with self.assertRaises(VinculoInexistente):
             self.cadastro.desvincular(self.admin, ANA, "MAT002")
         self.assertEqual(self._foto(), antes)
 
-    def test_monitor_desvinculado_nao_cadastra_horario_na_disciplina(self):
+    def test_a4_13_monitor_desvinculado_nao_cadastra_horario_na_disciplina(self):
         self.cadastro.desvincular(self.admin, ANA, "MAT002")
         antes = self._foto()
         with self.assertRaises(VinculoInexistente):
@@ -154,12 +154,12 @@ class TestDesvincular(unittest.TestCase):
                 self.ana, "MAT002", "sexta", "08:00", "10:00", "ICEx", "1")
         self.assertEqual(self._foto(), antes)
 
-    def test_vincular_de_novo_nao_traz_os_horarios_de_volta(self):
+    def test_a4_14_vincular_de_novo_nao_traz_os_horarios_de_volta(self):
         self.cadastro.desvincular(self.admin, ANA, "MAT002")
         vinculo = self.cadastro.vincular(self.admin, ANA, "MAT002")
         self.assertEqual(vinculo.atendimentos, ())
 
-    def test_consulta_reflete_o_desvinculo(self):
+    def test_a4_15_consulta_reflete_o_desvinculo(self):
         antes = self.cadastro.consultar_monitorias("MAT002")
         self.assertEqual(antes.situacao, SituacaoConsulta.COM_HORARIOS)
 

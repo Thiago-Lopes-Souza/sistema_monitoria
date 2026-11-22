@@ -267,7 +267,7 @@ class TestConsultarMonitorias(unittest.TestCase):
                     self.cadastro.consultar_monitorias(codigo, modalidade, dia)
         self._assert_nao_alterou(antes)
 
-    def test_local_e_modalidade_vem_de_cada_subclasse(self):
+    def test_f2_16_local_e_modalidade_vem_de_cada_subclasse(self):
         r = self.cadastro.consultar_monitorias("AAA111")
         terca, quinta = r.itens[0].atendimentos
         self.assertEqual(terca.modalidade(), "online")
@@ -275,17 +275,17 @@ class TestConsultarMonitorias(unittest.TestCase):
         self.assertEqual(quinta.modalidade(), "presencial")
         self.assertEqual(quinta.local(), "Predio X, sala 10")
 
-    def test_com_filtro_monitor_sem_horario_na_modalidade_nao_aparece(self):
+    def test_f2_17_com_filtro_monitor_sem_horario_na_modalidade_nao_aparece(self):
         r = self.cadastro.consultar_monitorias("CCC333", "presencial")
         self.assertEqual([i.monitor.nome for i in r.itens], ["Fabio Teste"])
 
-    def test_filtro_presencial_mostra_so_horarios_presenciais(self):
+    def test_f2_18_filtro_presencial_mostra_so_horarios_presenciais(self):
         r = self.cadastro.consultar_monitorias("AAA111", "presencial")
         self.assertEqual(r.situacao, SituacaoConsulta.COM_HORARIOS)
         self.assertEqual(self._ids(r.itens[0].atendimentos), (self.h_bia_quinta.id,))
         self.assertEqual(self._ids(r.itens[1].atendimentos), (self.h_davi.id,))
 
-    def test_modalidade_vazia_ou_none_equivale_a_todas(self):
+    def test_f2_19_modalidade_vazia_ou_none_equivale_a_todas(self):
         sem_filtro = self._resumo_resultado(self.cadastro.consultar_monitorias("AAA111"))
         for vazio in ("", "  ", None):
             with self.subTest(modalidade=vazio):
@@ -294,12 +294,12 @@ class TestConsultarMonitorias(unittest.TestCase):
                 )
                 self.assertEqual(atual, sem_filtro)
 
-    def test_modalidade_aceita_maiusculas_e_espacos(self):
+    def test_f2_20_modalidade_aceita_maiusculas_e_espacos(self):
         r = self.cadastro.consultar_monitorias("AAA111", "  ONLINE ")
         self.assertEqual(r.modalidade, "online")
         self.assertEqual(self._ids(r.itens[0].atendimentos), (self.h_bia_terca.id,))
 
-    def test_dia_aceita_maiusculas_espacos_e_vazio(self):
+    def test_f2_21_dia_aceita_maiusculas_espacos_e_vazio(self):
         r = self.cadastro.consultar_monitorias("AAA111", dia="  TERÇA ")
         self.assertEqual(r.dia, "terça")
         self.assertEqual(self._ids(r.itens[0].atendimentos), (self.h_bia_terca.id,))
@@ -312,12 +312,12 @@ class TestConsultarMonitorias(unittest.TestCase):
                 )
                 self.assertEqual(atual, sem_filtro)
 
-    def test_codigo_em_minusculas_e_com_espacos_e_aceito(self):
+    def test_f2_22_codigo_em_minusculas_e_com_espacos_e_aceito(self):
         r = self.cadastro.consultar_monitorias("  aaa111 ")
         self.assertEqual(r.disciplina.codigo, "AAA111")
         self.assertEqual(r.situacao, SituacaoConsulta.COM_HORARIOS)
 
-    def test_resultado_e_imutavel(self):
+    def test_f2_23_resultado_e_imutavel(self):
         r = self.cadastro.consultar_monitorias("AAA111")
         with self.assertRaises(dataclasses.FrozenInstanceError):
             r.situacao = SituacaoConsulta.MONITOR_SEM_HORARIOS
