@@ -12,7 +12,7 @@ from monitorias.dominio.excecoes import (
     PermissaoNegada, AtendimentoInexistente, RegistroDuplicado)
 from monitorias.persistencia.repositorio import RepositorioMonitorias
 from monitorias.dominio.senha import gerar_hash_senha, conferir_senha
-from monitorias.dominio.usuario import UsuarioCadastrado, Usuario, Operacao, Administrador
+from monitorias.dominio.usuario import UsuarioCadastrado, Usuario, Operacao
 
 
 class CadastroMonitorias:
@@ -24,8 +24,7 @@ class CadastroMonitorias:
 
     def cadastrar_disciplina(self,usuario: Usuario,codigo: str,nome: str) -> Disciplina:
         """A1: cadastra uma disciplina (só administrador)."""
-        if (not isinstance(usuario, Administrador) or not usuario.pode(Operacao.CADASTRAR_DISCIPLINA)):
-            raise PermissaoNegada("Usuário sem permissão para cadastrar disciplinas.")
+        self._exigir_permissao(usuario, Operacao.CADASTRAR_DISCIPLINA, "Usuário sem permissão para cadastrar disciplinas.")
 
         disciplina = Disciplina(codigo, nome)
         existente = self._repositorio.buscar_disciplina(disciplina.codigo)
@@ -40,8 +39,7 @@ class CadastroMonitorias:
 
     def cadastrar_monitor(self, usuario: Usuario, matricula: str, nome: str, email: str, senha_inicial: str) -> Monitor:
         """A2: cadastra um monitor com senha inicial (só administrador)."""
-        if (not isinstance(usuario, Administrador)or not usuario.pode(Operacao.CADASTRAR_MONITOR)):
-            raise PermissaoNegada("Usuário sem permissão para cadastrar monitores.")
+        self._exigir_permissao(usuario, Operacao.CADASTRAR_MONITOR, "Usuário sem permissão para cadastrar monitores.")
 
         monitor = Monitor(matricula, nome, email)
         existente = self._repositorio.buscar_usuario(monitor.matricula)
@@ -58,8 +56,7 @@ class CadastroMonitorias:
 
     def vincular(self, usuario: Usuario, matricula: str, codigo: str) -> Vinculo:
         """A3: vincula um monitor a uma disciplina (só administrador)."""
-        if (not isinstance(usuario, Administrador) or not usuario.pode(Operacao.VINCULAR)):
-            raise PermissaoNegada("Usuário sem permissão para vincular monitores.")
+        self._exigir_permissao(usuario, Operacao.VINCULAR, "Usuário sem permissão para vincular monitores.")
 
         monitor = self._buscar_monitor(matricula)
         disciplina = self._buscar_disciplina(codigo)
@@ -80,8 +77,7 @@ class CadastroMonitorias:
         Devolve quantos horários foram removidos.
         Lança PermissaoNegada, DadosInvalidos, MatriculaNaoCadastrada,
         DisciplinaForaDoEscopo ou VinculoInexistente; nada muda se rejeitar."""
-        if not isinstance(usuario, Administrador) or not usuario.pode(Operacao.DESVINCULAR):
-            raise PermissaoNegada("Usuário sem permissão para desvincular monitores.")
+        self._exigir_permissao(usuario, Operacao.DESVINCULAR, "Usuário sem permissão para desvincular monitores.")
         if not isinstance(matricula, str) or not isinstance(codigo, str):
             raise DadosInvalidos("A matrícula e o código devem ser um texto.")
 
@@ -151,9 +147,7 @@ class CadastroMonitorias:
     def listar_meus_atendimentos(self, usuario: Usuario) -> tuple[tuple[Disciplina, Atendimento], ...]:
         """F1b: lista os horários do monitor autenticado como pares (disciplina, atendimento),
         ordenados por dia e horário. Só leitura."""
-        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.VISUALIZAR_HORARIOS)):
-            raise PermissaoNegada(
-                "Usuário sem permissão para visualizar horários.")
+        self._exigir_permissao(usuario, Operacao.VISUALIZAR_HORARIOS, "Usuário sem permissão para visualizar horários.")
 
         monitor = self._buscar_monitor(usuario.matricula)
         vinculos = self._repositorio.vinculos_do_monitor(monitor.matricula)
@@ -169,8 +163,7 @@ class CadastroMonitorias:
         """F1c: altera dia e horários de um atendimento próprio, mantendo ID, disciplina,
         modalidade e local. Lança PermissaoNegada, DadosInvalidos, AtendimentoInexistente
         ou ConflitoDeHorario; nada muda se rejeitar."""
-        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.ALTERAR_HORARIO)):
-            raise PermissaoNegada("Usuário sem permissão para alterar horários.")
+        self._exigir_permissao(usuario, Operacao.ALTERAR_HORARIO, "Usuário sem permissão para alterar horários.")
 
         if type(id_atendimento) is not int or id_atendimento <= 0:
             raise DadosInvalidos("O ID do atendimento deve ser um inteiro positivo.")
@@ -203,8 +196,7 @@ class CadastroMonitorias:
     def remover_atendimento(self, usuario: Usuario, id_atendimento: int) -> None:
         """F1d: remove um atendimento do monitor autenticado.
         Lança PermissaoNegada, DadosInvalidos ou AtendimentoInexistente; nada muda se rejeitar."""
-        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.REMOVER_ATENDIMENTO)):
-            raise PermissaoNegada("Usuário sem permissão para remover horários.")
+        self._exigir_permissao(usuario, Operacao.REMOVER_ATENDIMENTO, "Usuário sem permissão para remover horários.")
 
         if type(id_atendimento) is not int or id_atendimento <= 0:
             raise DadosInvalidos("O ID do atendimento deve ser um inteiro positivo.")
@@ -268,12 +260,26 @@ class CadastroMonitorias:
 
     # -- AUXILIARES --
 
+    @staticmethod
+    def _exigir_permissao(usuario: Usuario, operacao: Operacao, mensagem: str) -> None:
+        """Lança PermissaoNegada se o usuário não puder realizar a operação.
+
+        A decisão é polimórfica: cada perfil responde em pode(), e o cadastro
+        não confere a classe do usuário. Qualquer valor sem pode() (None, um
+        texto) também é recusado.
+        """
+        pode = getattr(usuario, "pode", None)
+        if not callable(pode) or not pode(operacao):
+            raise PermissaoNegada(mensagem)
+
     def _buscar_monitor(self, matricula: str) -> Monitor:
         """Devolve o monitor ou lança MatriculaNaoCadastrada."""
         matricula = matricula.strip()
         usuario = self._repositorio.buscar_usuario(matricula)
 
-        if not isinstance(usuario, Monitor):
+        # Só o perfil de monitor cadastra horários; decidido por pode(), sem
+        # conferir a classe do usuário.
+        if usuario is None or not usuario.pode(Operacao.CADASTRAR_HORARIO):
             raise MatriculaNaoCadastrada(matricula)
 
         return usuario
@@ -291,8 +297,7 @@ class CadastroMonitorias:
     def _cadastrar_atendimento(self, usuario: Usuario, codigo: str, atendimento: Atendimento) -> Atendimento:
         """Valida permissão, vínculo e conflito e grava o atendimento; devolve-o com o ID.
         Nada muda se rejeitar."""
-        if (not isinstance(usuario, Monitor) or not usuario.pode(Operacao.CADASTRAR_HORARIO)):
-            raise PermissaoNegada("Usuário sem permissão para cadastrar horários.")
+        self._exigir_permissao(usuario, Operacao.CADASTRAR_HORARIO, "Usuário sem permissão para cadastrar horários.")
 
         matricula = usuario.matricula
 

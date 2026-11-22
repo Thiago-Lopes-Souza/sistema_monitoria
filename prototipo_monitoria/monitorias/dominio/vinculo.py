@@ -37,7 +37,9 @@ class Vinculo:
     def atendimentos(self) -> tuple[Atendimento, ...]:
         """Cópia dos atendimentos, ordenada por dia da semana e início.
 
-        Sem setter: horários só entram por _adicionar_atendimento, chamado pelo
-        CadastroMonitorias depois de todas as verificações.
+        Sem setter nem método público de inclusão: um horário novo só é gravado
+        pelo CadastroMonitorias (cadastrar_presencial/cadastrar_online), depois
+        de todas as verificações; o repositório remonta o vínculo com os
+        horários já gravados.
         """
         return tuple(sorted(self._atendimentos, key=lambda a: (DIAS_VALIDOS.index(a.dia), a.inicio)))
