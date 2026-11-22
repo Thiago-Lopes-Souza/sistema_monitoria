@@ -1,0 +1,80 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026900001
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Admin Fictício.
+
+--- Sessão de Admin Fictício ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar disciplina
+3 - Cadastrar monitor
+4 - Vincular monitor a disciplina
+5 - Desvincular monitor de disciplina
+0 - Sair da sessão
+Escolha uma opção: 3
+Matrícula do novo monitor: 2026000004
+Nome: Eva Exemplo
+E-mail institucional (@ufmg.br): eva.exemplo@ufmg.br
+Senha inicial: ********
+
+Monitor cadastrado: Eva Exemplo (2026000004) <eva.exemplo@ufmg.br>. Ainda sem vínculo com disciplinas.
+
+--- Sessão de Admin Fictício ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar disciplina
+3 - Cadastrar monitor
+4 - Vincular monitor a disciplina
+5 - Desvincular monitor de disciplina
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026000004
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Eva Exemplo.
+
+--- Sessão de Eva Exemplo ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 3
+
+Você ainda não tem horários cadastrados.
+
+--- Sessão de Eva Exemplo ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.

@@ -1,0 +1,66 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026000002
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Caio Exemplo.
+
+--- Sessão de Caio Exemplo ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 4
+
+Seus horários:
+  ID 3 | MAT001 — Cálculo Diferencial e Integral I | terça 14:00–16:00 | presencial | ICEx, sala 1010 | atualizado em 20/10/2026
+  ID 4 | MAT001 — Cálculo Diferencial e Integral I | quinta 19:00–20:00 | online | Google Meet: https://meet.exemplo/mat001 | atualizado em 20/10/2026
+ID do atendimento a alterar: 3
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 2
+Novo início (hh:mm): 15:00
+Novo fim (hh:mm): 17:00
+
+Horário alterado (ID 3): terça 15:00–17:00 | presencial | ICEx, sala 1010 | atualizado em 22/11/2026
+
+--- Sessão de Caio Exemplo ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 3
+
+Seus horários:
+  ID 3 | MAT001 — Cálculo Diferencial e Integral I | terça 15:00–17:00 | presencial | ICEx, sala 1010 | atualizado em 22/11/2026
+  ID 4 | MAT001 — Cálculo Diferencial e Integral I | quinta 19:00–20:00 | online | Google Meet: https://meet.exemplo/mat001 | atualizado em 20/10/2026
+
+--- Sessão de Caio Exemplo ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.

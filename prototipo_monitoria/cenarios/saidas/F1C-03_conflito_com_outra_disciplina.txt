@@ -1,0 +1,67 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026000001
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Ana Fictícia.
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 4
+
+Seus horários:
+  ID 1 | DCC203 — Programação e Desenvolvimento de Software I | terça 10:00–12:00 | presencial | CAD 3, sala 204 | atualizado em 20/10/2026
+  ID 2 | MAT002 — Geometria Analítica e Álgebra Linear | quarta 10:00–12:00 | presencial | ICEx, sala 2033 | atualizado em 20/10/2026
+ID do atendimento a alterar: 2
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 2
+Novo início (hh:mm): 11:00
+Novo fim (hh:mm): 13:00
+
+Não foi possível concluir: Conflito de horário: você já atende terça 10:00–12:00 em DCC203.
+Nenhum dado foi alterado.
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 3
+
+Seus horários:
+  ID 1 | DCC203 — Programação e Desenvolvimento de Software I | terça 10:00–12:00 | presencial | CAD 3, sala 204 | atualizado em 20/10/2026
+  ID 2 | MAT002 — Geometria Analítica e Álgebra Linear | quarta 10:00–12:00 | presencial | ICEx, sala 2033 | atualizado em 20/10/2026
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.

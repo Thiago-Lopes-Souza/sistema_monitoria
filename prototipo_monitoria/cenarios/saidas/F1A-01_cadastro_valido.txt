@@ -1,0 +1,86 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026000001
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Ana Fictícia.
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 2
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 4
+Início (hh:mm): 14:00
+Fim (hh:mm): 16:00
+
+Horário cadastrado (ID 5): quinta 14:00–16:00 | presencial | CAD 3, sala 204 | atualizado em 22/11/2026
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 3
+
+Seus horários:
+  ID 1 | DCC203 — Programação e Desenvolvimento de Software I | terça 10:00–12:00 | presencial | CAD 3, sala 204 | atualizado em 20/10/2026
+  ID 2 | MAT002 — Geometria Analítica e Álgebra Linear | quarta 10:00–12:00 | presencial | ICEx, sala 2033 | atualizado em 20/10/2026
+  ID 5 | DCC203 — Programação e Desenvolvimento de Software I | quinta 14:00–16:00 | presencial | CAD 3, sala 204 | atualizado em 22/11/2026
+
+--- Sessão de Ana Fictícia ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 1
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: Enter = todas, 1 = presencial, 2 = online
+Modalidade: 
+Dia da semana: Enter = todos, 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 
+
+DCC203 — Programação e Desenvolvimento de Software I (modalidade: todas | dia: todos)
+  Monitor(a): Ana Fictícia <ana.ficticia@ufmg.br>
+    - terça 10:00–12:00 | presencial | CAD 3, sala 204 | atualizado em 20/10/2026
+    - quinta 14:00–16:00 | presencial | CAD 3, sala 204 | atualizado em 22/11/2026
+  Monitor(a): Caio Exemplo <caio.exemplo@ufmg.br>
+    (sem horários cadastrados nesta disciplina)
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.

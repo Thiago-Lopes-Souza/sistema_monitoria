@@ -1,0 +1,65 @@
+Base de dados: <base temporária do cenário>
+=== Consulta centralizada de monitorias — Eng. de Sistemas UFMG (2026/2) ===
+Dados de demonstração FICTÍCIOS (nomes, matrículas, e-mails, links e senhas).
+As alterações ficam salvas na base de dados e continuam lá na próxima execução.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 2
+Matrícula: 2026000003
+Senha: ********
+
+Sessão iniciada. Bem-vindo(a), Duda Teste.
+
+--- Sessão de Duda Teste ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 2
+Código da disciplina (ex.: DCC203): DCC203
+Modalidade: 1 = presencial, 2 = online
+Modalidade: 1
+Prédio (ex.: CAD 3): CAD 3
+Sala (ex.: 204): 204
+Dia da semana: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta, 6 = sábado
+Dia: 5
+Início (hh:mm): 14:00
+Fim (hh:mm): 16:00
+
+Não foi possível concluir: O monitor de matrícula 2026000003 não é monitor da disciplina DCC203.
+Nenhum dado foi alterado.
+
+--- Sessão de Duda Teste ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 3
+
+Você ainda não tem horários cadastrados.
+
+--- Sessão de Duda Teste ---
+1 - Consultar monitorias de uma disciplina
+2 - Cadastrar horário de atendimento
+3 - Ver meus horários
+4 - Alterar dia e horário de um atendimento
+5 - Remover um atendimento
+0 - Sair da sessão
+Escolha uma opção: 0
+Sessão encerrada.
+
+--- Menu inicial ---
+1 - Consultar monitorias de uma disciplina (sem login)
+2 - Entrar como monitor ou administrador
+3 - Listar disciplinas do sistema
+0 - Sair
+Escolha uma opção: 0
+Encerrando. As alterações feitas nesta execução ficaram salvas na base de dados.
