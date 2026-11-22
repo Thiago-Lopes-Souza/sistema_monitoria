@@ -227,6 +227,6 @@ test_setter_rejeitado_mantem_o_email_anterior (test_usuarios.TestUsuarioCadastra
 test_setter_troca_o_email_quando_valido (test_usuarios.TestUsuarioCadastrado.test_setter_troca_o_email_quando_valido) ... ok
 
 ----------------------------------------------------------------------
-Ran 222 tests in 8.886s
+Ran 222 tests in 3.302s
 
 OK

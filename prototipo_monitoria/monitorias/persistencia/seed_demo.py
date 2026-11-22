@@ -12,6 +12,11 @@ Pode ser executado quantas vezes quiser sem duplicar nada: se a base já tem
 dados, a carga não faz nada. Ela também roda numa única transação, então ou
 entra tudo, ou nada. Por isso "a base tem algum usuário" equivale a "a carga
 já foi feita".
+
+A carga passa pelas operações do CadastroMonitorias (A1, A2, A3 e F1a), com as
+mesmas validações e checagens de conflito do uso normal. A única gravação feita
+direto pelo repositório é a do primeiro administrador: nenhuma operação do
+sistema cadastra administradores, e sem um deles não há quem execute A1–A3.
 """
 
 from __future__ import annotations
@@ -20,9 +25,7 @@ import argparse
 from datetime import date
 from pathlib import Path
 
-from monitorias.dominio.atendimento import AtendimentoOnline, AtendimentoPresencial
-from monitorias.dominio.disciplina import Disciplina
-from monitorias.dominio.monitor import Monitor
+from monitorias.dominio.cadastro import CadastroMonitorias
 from monitorias.dominio.senha import gerar_hash_senha
 from monitorias.dominio.usuario import Administrador
 from monitorias.persistencia.conexao import CAMINHO_PADRAO, abrir_base
@@ -64,47 +67,52 @@ VINCULOS = (
 )
 
 
-def _atendimentos_iniciais():
-    """(matrícula, código, atendimento) dos horários iniciais.
-
-    São criados pelos construtores do domínio, que validam dia, horário e local.
-    Os mesmos valores do protótipo, para os cenários continuarem válidos, mais
-    o horário da Ana em MAT002.
-    """
-    return (
-        ("2026000001", "DCC203",
-         AtendimentoPresencial("terça", "10:00", "12:00", "CAD 3", "204", DATA_DEMO)),
-        ("2026000001", "MAT002",
-         AtendimentoPresencial("quarta", "10:00", "12:00", "ICEx", "2033", DATA_DEMO)),
-        ("2026000002", "MAT001",
-         AtendimentoPresencial("terça", "14:00", "16:00", "ICEx", "1010", DATA_DEMO)),
-        ("2026000002", "MAT001",
-         AtendimentoOnline("quinta", "19:00", "20:00", "Google Meet",
-                           "https://meet.exemplo/mat001", DATA_DEMO)),
-    )
+#: Horários iniciais: (matrícula, código, modalidade, dia, início, fim, local 1, local 2).
+#: Local 1 e 2 são prédio e sala (presencial) ou plataforma e link (online).
+#: Os mesmos valores do protótipo, para os cenários continuarem válidos, mais
+#: o horário da Ana em MAT002.
+HORARIOS = (
+    ("2026000001", "DCC203", "presencial", "terça", "10:00", "12:00", "CAD 3", "204"),
+    ("2026000001", "MAT002", "presencial", "quarta", "10:00", "12:00", "ICEx", "2033"),
+    ("2026000002", "MAT001", "presencial", "terça", "14:00", "16:00", "ICEx", "1010"),
+    ("2026000002", "MAT001", "online", "quinta", "19:00", "20:00", "Google Meet",
+     "https://meet.exemplo/mat001"),
+)
 
 
 def carregar_demo(repositorio: RepositorioMonitorias) -> bool:
     """Preenche a base com os dados fictícios, se ela estiver vazia.
 
+    Grava o primeiro administrador pelo repositório e todo o resto pelas
+    operações do cadastro (A2, A1, A3 e F1a), numa única transação. Os horários
+    recebem a data fixa DATA_DEMO.
+
     Devolve:
         True se carregou; False se a base já tinha dados (nada foi alterado).
+    Lança:
+        ErroMonitorias, se algum dado fictício violar uma regra; nesse caso a
+        transação é desfeita e a base continua vazia.
     """
     if not repositorio.esta_vazia():
         return False
+    cadastro = CadastroMonitorias(repositorio, hoje=lambda: DATA_DEMO)
     with repositorio.transacao():
         for matricula, nome, email, senha in ADMINISTRADORES:
             repositorio.inserir_administrador(
                 Administrador(matricula, nome, email), *gerar_hash_senha(senha))
+        administrador = repositorio.buscar_usuario(ADMINISTRADORES[0][0])
         for matricula, nome, email, senha in MONITORES:
-            repositorio.inserir_monitor(
-                Monitor(matricula, nome, email), *gerar_hash_senha(senha))
+            cadastro.cadastrar_monitor(administrador, matricula, nome, email, senha)
         for codigo, nome in DISCIPLINAS:
-            repositorio.inserir_disciplina(Disciplina(codigo, nome))
+            cadastro.cadastrar_disciplina(administrador, codigo, nome)
         for matricula, codigo in VINCULOS:
-            repositorio.inserir_vinculo(matricula, codigo)
-        for matricula, codigo, atendimento in _atendimentos_iniciais():
-            repositorio.inserir_atendimento(matricula, codigo, atendimento)
+            cadastro.vincular(administrador, matricula, codigo)
+        for matricula, codigo, modalidade, dia, inicio, fim, local1, local2 in HORARIOS:
+            monitor = repositorio.buscar_usuario(matricula)
+            if modalidade == "presencial":
+                cadastro.cadastrar_presencial(monitor, codigo, dia, inicio, fim, local1, local2)
+            else:
+                cadastro.cadastrar_online(monitor, codigo, dia, inicio, fim, local1, local2)
     return True
 
 
