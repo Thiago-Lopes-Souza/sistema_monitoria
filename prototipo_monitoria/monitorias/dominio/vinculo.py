@@ -9,11 +9,19 @@ class Vinculo:
 
     """Liga um monitor a uma disciplina e guarda os atendimentos desse vínculo."""
 
-    def __init__(self, monitor: Monitor, disciplina: Disciplina) -> None:
-        """Cria um vínculo sem atendimentos."""
+    def __init__(self, monitor: Monitor, disciplina: Disciplina,
+                 atendimentos: tuple[Atendimento, ...] = ()) -> None:
+        """Cria um vínculo.
+
+        Recebe:
+            atendimentos: horários que o vínculo já tem. Só o repositório passa
+                este argumento, ao remontar o vínculo a partir da base de dados,
+                onde os horários já foram validados quando foram gravados. Um
+                vínculo novo (vincular) começa vazio.
+        """
         self._monitor = monitor
         self._disciplina = disciplina
-        self._atendimentos: list[Atendimento] = []
+        self._atendimentos: list[Atendimento] = list(atendimentos)
 
     @property
     def monitor(self) -> Monitor:
