@@ -1,8 +1,9 @@
 # Evidências da versão final — verificação
 
-Execução em **22/11/2026**, macOS, **Python 3.13.0**, branch `integracao-final`, que junta as
-frentes A, B e C e a frente D. A versão será identificada pela tag `v1.0-final`, que ainda
-**não foi criada**. Os resultados esperados foram escritos antes da execução em
+**Versão:** tag `v1.0-final`, commit `b3e9cce`.
+
+Execução em **22/11/2026**, macOS, **Python 3.13.0**, com o código das frentes A, B, C e D
+integrado. Os resultados esperados foram escritos antes da execução em
 `prototipo_monitoria/cenarios/ESPERADO.md` (commit `5b0c0ef`).
 
 **Como reproduzir**, de dentro de `prototipo_monitoria/`:
@@ -20,7 +21,7 @@ próprias, em `:memory:` ou em arquivo temporário, montadas no `setUp`.
 
 **Coluna Evidência:** o arquivo da saída real do terminal, e o teste automático que verifica
 a mesma regra, pelo nome que aparece em `cenarios/saidas/unittest.txt`. A numeração dos
-cenários de terminal é própria (veja a pendência 2).
+cenários de terminal é própria (veja a pendência 1).
 
 ## Estado inicial de todos os cenários (carga fictícia)
 
@@ -207,12 +208,11 @@ As três decisões seguem o que o grupo já tinha entregue à professora no plan
 
 ## Pendências
 
-1. **Tag `v1.0-final`:** criar no commit que for para a entrega, depois do merge na `main`.
-2. **Numeração dos cenários de terminal × testes:** os IDs dos cenários de terminal (por
+1. **Numeração dos cenários de terminal × testes:** os IDs dos cenários de terminal (por
    exemplo F1C-02) não coincidem com os números dos testes da mesma regra (por exemplo
    `test_f1c_07_outro_monitor_nao_pode_alterar`). Cada linha da tabela aponta o teste pelo
    nome completo.
-3. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
+2. **Contatos em "sem horário com esse filtro":** o domínio devolve a lista vazia, e o menu faz
    uma segunda consulta, só de leitura, para mostrar os e-mails.
 
 ## Limitações conhecidas
@@ -237,18 +237,21 @@ As três decisões seguem o que o grupo já tinha entregue à professora no plan
 
 ## Conferência do ZIP
 
-Arquivo: `sistema-monitorias-final.zip`, na raiz do repositório e fora do Git. Tem 117
-entradas, todas dentro de `prototipo_monitoria/`, **incluindo `cenarios/saidas/`** (as 37
-transcrições e o `unittest.txt`). Não contém `.git`, `__pycache__`, `.db` nem `dados/`. Foi
-extraído numa pasta temporária limpa, e só o README foi seguido, com `python` 3.13.5:
+Arquivo: `sistema-monitorias-final.zip`, gerado a partir da tag com
+`git archive --format=zip -o sistema-monitorias-final.zip v1.0-final prototipo_monitoria`.
+Ele contém exatamente o que está versionado na tag, e o próprio ZIP registra o commit de
+origem (`b3e9cce`). Tem **117 entradas**, todas dentro de `prototipo_monitoria/`, incluindo
+`cenarios/saidas/` (as 37 transcrições e o `unittest.txt`). Não contém `.git`, `__pycache__`,
+`.db` nem `dados/`.
+
+O ZIP foi extraído numa pasta temporária nova, e só o README foi seguido, com `python` 3.13.5:
 
 | Passo do README | Resultado observado |
 |---|---|
-| 1. `python -m monitorias.persistencia.seed_demo` | "Base de demonstração criada em …/dados/monitorias.db." Rodado de novo: "… já tem dados; nada foi alterado." |
-| 2. `python -m monitorias`: F2 de FIS069, login da Duda e F1a em FIS069 quarta 18:00–19:00 online | F2: "Há monitor cadastrado, mas os horários ainda não foram informados."; "Sessão iniciada. Bem-vindo(a), Duda Teste."; "Horário cadastrado (ID 5): quarta 18:00–19:00 \| online …"; a F2 seguinte mostra o horário |
-| 2 de novo, em nova execução | A F2 de FIS069 ainda mostra quarta 18:00–19:00: persistiu |
+| 1. `python -m monitorias.persistencia.seed_demo` | "Base de demonstração criada em …/dados/monitorias.db." Rodado de novo: "A base …/dados/monitorias.db já tem dados; nada foi alterado." |
+| 2. `python -m monitorias`: F2 de FIS069, login da Duda, F1a em FIS069 quarta 18:00–19:00 online e nova F2 | F2: "Há monitor cadastrado, mas os horários ainda não foram informados."; "Sessão iniciada. Bem-vindo(a), Duda Teste."; "Horário cadastrado (ID 5): quarta 18:00–19:00 \| online \| Google Meet: https://meet.exemplo/duda \| atualizado em 22/11/2026"; a F2 seguinte mostra o horário. Numa nova execução, a F2 de FIS069 ainda mostra quarta 18:00–19:00: o dado persistiu |
 | 3. `python -m unittest discover -s tests -v` | "Ran 222 tests … OK" |
-| 4. `python cenarios/rodar_cenarios.py` | Os 37 cenários rodaram; as transcrições geradas são idênticas byte a byte às de `cenarios/saidas/` que vieram no ZIP, e o `unittest.txt` só difere na linha do tempo de execução |
+| 4. `python cenarios/rodar_cenarios.py` | Os 37 cenários rodaram ("ok  unittest: OK"); as transcrições geradas são idênticas byte a byte às de `cenarios/saidas/` que vieram no ZIP (0 de 37 diferentes) |
 
-Conclusão: **aprovado**. O programa inicia, as funcionalidades rodam, os testes executam e as
-evidências incluídas se reproduzem, seguindo só o README.
+Conclusão: **aprovado**. Seguindo só o README, o programa inicia, as funcionalidades rodam, os
+testes executam e as evidências incluídas se reproduzem na versão `v1.0-final`.
